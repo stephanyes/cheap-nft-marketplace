@@ -4,13 +4,18 @@
   "description": "Ratherlabs Senior Backend challenge - NFT Marketplace",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
   },
   "author": "Stephano Iucciolino @stephanyes",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
     "express": "^4.18.2",
+    "express-rate-limit": "^6.8.1",
+    "joi": "^17.9.2",
+    "nodemon": "^3.0.1",
     "redis": "^4.6.7",
     "web3": "^4.0.3"
   }
