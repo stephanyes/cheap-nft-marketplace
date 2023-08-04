@@ -1,4 +1,4 @@
-const CONTRACT_ADDRESS = "0x597C9bC3F00a4Df00F85E9334628f6cDf03A1184";
+const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const ABI = [
   {
     inputs: [
