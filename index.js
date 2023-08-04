@@ -1,63 +1,46 @@
+require("dotenv").config();
 const express = require("express");
-const rateLimit = require("express-rate-limit");
 const cors = require("cors");
-const Web3 = require("web3").default;
-
-const { validateBody } = require("./utils");
-const { listNftSchema, placeBidSchema } = require("./schema");
-const { ABI, CONTRACT_ADDRESS } = require("./contracts");
-const NftController = require("./controller");
-
-const web3 = new Web3(
-  "https://sepolia.infura.io/v3/5d77802fcc8342b8b67c82df72c3f949"
-);
-const contract = new web3.eth.Contract(ABI, CONTRACT_ADDRESS);
-console.log(contract.options.address);
-
-const PORT = 3000;
-const limit = rateLimit({
-  windowMs: 10 * 60 * 1000,
-  max: 100, // Limit to 100 req
-  standardHeaders: true, // return RateLimit in headers
-  legacyHeaders: false, // Disable X-RateLimit headers
-});
-
-const limitPayloadSize = (req, res, next) => {
-  const MAX_PAYLOAD_SIZE = 1024 * 1024; // 1MB
-  if (
-    req.headers["content-length"] &&
-    parseInt(req.headers["content-length"]) > MAX_PAYLOAD_SIZE
-  ) {
-    return res.status(413).json({ error: "Payload size exceeds the limit" });
-  }
-  next();
-};
+const { web3, contract } = require("./config");
+const { limitPayloadSize, limit, fetchAndSetAccounts } = require("./utils");
+const routes = require("./routes");
+const PORT = process.env.PORT || 3000;
+const TOTAL_USERS = process.env.TOTAL_USERS || 2;
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors()); // enable all cors request (Simple Usage)
 app.use(limit);
+
+// Setting req & res timeout to 5000 ms
 app.use((req, res, next) => {
   req.setTimeout(5000);
   res.setTimeout(5000);
   next();
 });
 
+// Create Users A & B
+fetchAndSetAccounts(web3, TOTAL_USERS);
+console.log(`Contract address ${contract.options.address}`);
+
+// Limit payload for security
 app.use(limitPayloadSize);
 
-app.get("/api/listings", NftController.listings);
+// Routes
+app.use(routes);
 
-app.post(
-  "/api/listings",
-  validateBody(listNftSchema),
-  NftController.createListing
-);
-app.post("/api/bids", validateBody(placeBidSchema), NftController.placeBid);
+// Error handling
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something broke!");
+});
 
+// Server
 const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
+// Server configs
 server.keepAliveTimeout = 30 * 1000; // 30 sec
 server.headersTimeout = 35 * 1000; // 35 sec
