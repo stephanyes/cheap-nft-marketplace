@@ -1,3 +1,4 @@
+const { getAccounts } = require('./utils')
 const listings = [];
 
 const NftController = {
@@ -42,6 +43,10 @@ const NftController = {
   listings: (req, res) => {
     res.status(200).json(listings);
   },
+
+  accounts: (req, res) => {
+    res.status(200).json(getAccounts())
+  }
 };
 
 module.exports = NftController;
