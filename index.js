@@ -21,7 +21,7 @@ app.use((req, res, next) => {
 });
 
 // Create Users A & B
-fetchAndSetAccounts(web3, TOTAL_USERS);
+// fetchAndSetAccounts(web3, TOTAL_USERS);
 console.log(`Contract address ${contract.options.address}`);
 
 // Limit payload for security

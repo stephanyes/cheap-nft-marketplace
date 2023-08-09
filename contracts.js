@@ -27,7 +27,6 @@ const ABI = [
   },
 ];
 
-
 const ERC721_ABI = [
   {
     "inputs": [

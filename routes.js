@@ -1,16 +1,22 @@
 const express = require("express");
 const { validateBody } = require("./utils");
-const { listNftSchema, placeBidSchema } = require("./schema");
+const { listNftSchema, placeBidSchema, signatureSchema } = require("./schema");
 const NftController = require("./controller");
 const router = express.Router();
 
-router.get("/api/listings", NftController.listings);
-router.get("/api/accounts", NftController.accounts)
+router.get("/api/all-listings", NftController.listings);
+router.get("/api/accounts", NftController.accounts);
 router.post(
-  "/api/listings",
+  "/api/createListing",
   validateBody(listNftSchema),
   NftController.createListing
 );
-router.post("/api/bids", validateBody(placeBidSchema), NftController.placeBid);
+router.post(
+  "/api/placeBid",
+  validateBody(placeBidSchema),
+  NftController.placeBid
+);
+router.post("/api/sign", validateBody(signatureSchema), NftController.sign);
+router.post("/api/finalize-trade", NftController.finalizeTrade);
 
 module.exports = router;
