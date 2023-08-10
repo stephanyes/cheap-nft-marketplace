@@ -110,36 +110,43 @@ async function transferAllFunds(web3Instance, userAPrivateKey, userBAddress) {
 }
 
 async function mintTokens(web3, fromAddress, privateKey, toAddress, amount) {
-  // Create the contract instance
-  const mockERC20Contract = new web3.eth.Contract(ERC721_ABI, ERC721);
-  const signer = web3.eth.accounts.privateKeyToAccount(privateKey);
-  const nonce = await web3.eth.getTransactionCount(signer.address);
-
-  // Convert the amount to the smallest unit (wei-like, considering 18 decimals).
-  const mintAmount = web3.utils.toWei(amount.toString(), "ether");
-  const estimatedGas = await estimateGasForMinting(
-    web3,
-    fromAddress,
-    toAddress,
-    mintAmount
-  );
-  // Create a transaction object
-  const tx = {
-    to: ERC721,
-    data: mockERC20Contract.methods.mint(toAddress, mintAmount).encodeABI(),
-    gas: estimatedGas, // You might want to estimate this dynamically
-    nonce: nonce,
-    maxPriorityFeePerGas: web3.utils.toWei("2", "gwei"), // Adjust this value based on current network conditions
-    maxFeePerGas: web3.utils.toWei("100", "gwei"), // Adjust this value based on current network conditions
-  };
-
-  // Sign the transaction
-  const signedTx = await web3.eth.accounts.signTransaction(tx, privateKey);
-
-  // Send the transaction and get the receipt
-  const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
-
-  return receipt;
+try {
+    // Create the contract instance
+    const mockERC20Contract = new web3.eth.Contract(ERC721_ABI, ERC721);
+    const signer = web3.eth.accounts.privateKeyToAccount(privateKey);
+    const nonce = await web3.eth.getTransactionCount(signer.address);
+  console.log("Contract finalized")
+    // Convert the amount to the smallest unit (wei-like, considering 18 decimals).
+    const mintAmount = web3.utils.toWei(amount.toString(), "ether");
+    const estimatedGas = await estimateGasForMinting(
+      web3,
+      fromAddress,
+      toAddress,
+      mintAmount
+    );
+    console.log("estimated gas ok")
+    // Create a transaction object
+    const tx = {
+      to: ERC721,
+      data: mockERC20Contract.methods.mint(toAddress, mintAmount).encodeABI(),
+      gas: estimatedGas, // You might want to estimate this dynamically
+      nonce: nonce,
+      maxPriorityFeePerGas: web3.utils.toWei("2", "gwei"), // Adjust this value based on current network conditions
+      maxFeePerGas: web3.utils.toWei("100", "gwei"), // Adjust this value based on current network conditions
+    };
+  
+    // Sign the transaction
+    const signedTx = await web3.eth.accounts.signTransaction(tx, privateKey);
+    console.log("signed tx ok")
+    // Send the transaction and get the receipt
+    const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+    console.log("receit ok")
+    return receipt;
+  } catch (error) {
+    console.error(
+      `An error occurred while fetching the token balance: ${error}`
+    );
+  }
 }
 
 async function estimateGasForMinting(web3, fromAddress, toAddress, amount) {

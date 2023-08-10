@@ -10,7 +10,6 @@ describe("MockERC20", function () {
 
     // Deploy the contract
     mockERC20 = await MockERC20.deploy("MockToken", "MTK");
-    // No need for the next line, you can remove it
     // await mockERC20.deployed();
   });
 

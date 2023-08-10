@@ -16,6 +16,7 @@ router.post(
   validateBody(placeBidSchema),
   NftController.placeBid
 );
+router.post("/api/mintToken", NftController.testingMint)
 router.post("/api/sign", validateBody(signatureSchema), NftController.sign);
 router.post("/api/finalize-trade", NftController.finalizeTrade);
 

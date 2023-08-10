@@ -1,4 +1,5 @@
 const NftService = require("./service");
+const { mintTokens } = require("./utils");
 
 const NftController = {
   createListing: (req, res) => {
@@ -21,6 +22,15 @@ const NftController = {
 
   listings: (req, res) => {
     res.status(200).json(NftService.getListings());
+  },
+
+  testingMint: async (req, res) => {
+    try {
+      const test = await NftService.mintTokens(req.body)
+      res.status(200).json(test)
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
   },
 
   accounts: (req, res) => {
@@ -54,16 +64,17 @@ const NftController = {
     if (!listing) {
       return res.status(404).json({ error: "Listing not found" });
     }
-    const obj = {
-      tokenId: listingId,
-      bid: listing.price,
-      collectionAddress: listing.collectionAddress,
-      erc20Address: listing.erc20Address,
-      privateKey: privateKeyA,
-    };
-    const test = NftService.prepareData(obj);
 
     try {
+
+      const obj = {
+        tokenId: listingId,
+        bid: listing.price,
+        collectionAddress: listing.collectionAddress,
+        erc20Address: listing.erc20Address,
+        privateKey: privateKeyA,
+      };
+      const test = NftService.prepareData(obj);
       const receipt = await NftService.finalizeTrade(
         senderAccount,
         test,

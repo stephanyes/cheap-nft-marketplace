@@ -15,19 +15,9 @@ async function main() {
   const lock = await hre.ethers.deployContract("Lock", [unlockTime], {
     value: lockedAmount,
   });
-  const erc20 = await hre.ethers.deployContract("MockERC20", [unlockTime], {
-    value: lockedAmount,
-  });
-  const erc721 = await hre.ethers.deployContract("MockERC721", [unlockTime], {
-    value: lockedAmount,
-  });
-  const marketplace = await hre.ethers.deployContract(
-    "Marketplace",
-    [unlockTime],
-    {
-      value: lockedAmount,
-    }
-  );
+  const erc20 = await hre.ethers.deployContract("MockERC20", "ERC20");
+  const erc721 = await hre.ethers.deployContract("MockERC721", "ERC721");
+  const marketplace = await hre.ethers.deployContract("Marketplace");
 
   await lock.waitForDeployment();
   await erc20.waitForDeployment();

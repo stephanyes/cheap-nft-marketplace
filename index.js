@@ -15,8 +15,8 @@ app.use(limit);
 
 // Setting req & res timeout to 5000 ms
 app.use((req, res, next) => {
-  req.setTimeout(5000);
-  res.setTimeout(5000);
+  req.setTimeout(10000);
+  res.setTimeout(10000);
   next();
 });
 

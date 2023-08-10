@@ -1,4 +1,4 @@
-const { getAccounts } = require("./utils");
+const { getAccounts, mintTokens } = require("./utils");
 const { web3 } = require("./config");
 const {
   ABI,
@@ -51,6 +51,16 @@ const NftService = {
     return listing;
   },
 
+  mintTokens: async function({fromAddress, privateKey, toAddress, amount}) {
+    try {
+      const test = await mintTokens(web3, fromAddress, privateKey, toAddress, amount)
+      return test
+    } catch (error) {
+      console.error("Error:", error);
+      throw error; // or return some error message to handle it gracefully
+    }
+  },
+
   getListings: () => {
     return listings;
   },
@@ -97,11 +107,11 @@ const NftService = {
     } = auctionData;
     // let dataString;
 
-    // if (offerSignedMessage) {
-    //   dataString = `${collectionAddress}${erc20Address}${tokenId.toString()}${bid.toString()}${offerSignedMessage}`;
-    // } else {
-    // }
-    let dataString = `${collectionAddress}${erc20Address}${tokenId.toString()}${bid.toString()}`;
+    if (offerSignedMessage) {
+      dataString = `${offerSignedMessage}`;
+    } else {
+      dataString = `${collectionAddress}${erc20Address}${tokenId.toString()}${bid.toString()}`;
+    }
     const toBeSigned = web3.utils.keccak256(dataString);
     return { toBeSigned, privateKey, dataString };
   },
@@ -125,10 +135,10 @@ const NftService = {
     const contract = new web3.eth.Contract(ABI, CONTRACT_ADDRESS);
     const mockERC20Contract = new web3.eth.Contract(ERC20_ABI, ERC20);
     const mockERC721Contract = new web3.eth.Contract(ERC721_ABI, ERC721);
-
+    console.log("llego aca?????")
     const nonceA = await web3.eth.getTransactionCount(senderAccount);
     const nonceB = await web3.eth.getTransactionCount(bidderAddress);
-
+    const nonceC = nonceA + new BigNumber
     try {
       const transformedBid = web3.utils.toBigInt(obj.bid);
       const transformedTokenId = web3.utils.toBigInt(obj.tokenId);
@@ -179,12 +189,21 @@ const NftService = {
       };
 
       console.log("44444444444444444444444444");
-      // Signing transactions concurrently
+      // const test = await  web3.eth.accounts.signTransaction(tx2, privateKeyA)
+      // // Signing transactions concurrently
+      // const receipt = await web3.eth.sendSignedTransaction(
+      //   test.raw || test.rawTransaction
+      // )
+      // const allowance5 = await mockERC20Contract.methods
+      // .allowance(senderAccount, CONTRACT_ADDRESS)
+      // .call();
+      // console.log("Allowance set by sender for CONTRACT_ADDRESS: ", allowance5);
+
+      // return receipt
       const [signedTx1, signedTx2] = await Promise.all([
         web3.eth.accounts.signTransaction(tx1, privateKeyA),
         web3.eth.accounts.signTransaction(tx2, privateKeyB),
       ]);
-
       // Sending the ERC721 and ERC20 approval transactions concurrently
       const [tx1Receipt, tx2Receipt] = await Promise.all([
         web3.eth.sendSignedTransaction(
@@ -209,6 +228,20 @@ const NftService = {
         .call();
       console.log("Allowance set by sender for CONTRACT_ADDRESS: ", allowance2);
       console.log("Transformed Bid:", transformedBid);
+
+      let gasEstimateMarketplace = await contract.methods
+      .finishAuction(
+        [
+          obj.collectionAddress,
+          obj.erc20Address,
+          transformedTokenId,
+          transformedBid,
+        ],
+        bidderSig,
+        ownerApprovedSig
+      )
+      .estimateGas({ from: senderAccount });
+      console.log("gasEstimate Marketplace ", gasEstimateMarketplace);
       // Buyer wants NFT
       const marketPlaceAction = contract.methods
         .finishAuction(
@@ -223,22 +256,11 @@ const NftService = {
         )
         .encodeABI();
       console.log("marketPlaceAction ", marketPlaceAction);
-      let gasEstimateMarketplace = await contract.methods
-        .finishAuction(
-          [
-            obj.collectionAddress,
-            obj.erc20Address,
-            transformedTokenId,
-            transformedBid,
-          ],
-          bidderSig,
-          ownerApprovedSig
-        )
-        .estimateGas({ from: bidderAddress });
-      console.log("gasEstimate Marketplace ", gasEstimateMarketplace);
+
       const tx3 = {
         nonce: web3.utils.toHex(nonceB),
         gas: gasEstimateMarketplace,
+        from: senderAccount,
         gasPrice: web3.utils.toHex(web3.utils.toWei("10", "gwei")),
         to: CONTRACT_ADDRESS,
         data: marketPlaceAction,
@@ -246,7 +268,7 @@ const NftService = {
       console.log("tx3 ", tx3);
       const signedTx3 = await web3.eth.accounts.signTransaction(
         tx3,
-        privateKeyB
+        privateKeyA
       );
       const tx3Receipt = await web3.eth.sendSignedTransaction(
         signedTx3.raw || signedTx3.rawTransaction
