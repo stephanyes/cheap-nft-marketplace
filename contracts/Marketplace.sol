@@ -38,7 +38,7 @@ contract Marketplace {
         address owner = hashedBidderSig.toEthSignedMessageHash().recover(
             ownerApprovedSig
         );
-
+    
         IERC20(auctionData.erc20Address).transferFrom(
             bidder,
             owner,
@@ -49,5 +49,30 @@ contract Marketplace {
             bidder,
             auctionData.tokenId
         );
+    }
+    function returnStuff(
+        AuctionData memory auctionData,
+        bytes memory bidderSig,
+        bytes memory ownerApprovedSig) public view returns (address, address, AuctionData memory) {
+
+        bytes32 messagehash = keccak256(
+            abi.encodePacked(
+                auctionData.collectionAddress,
+                auctionData.erc20Address,
+                auctionData.tokenId,
+                auctionData.bid
+            )
+        );
+
+        address bidder = messagehash.toEthSignedMessageHash().recover(
+            bidderSig
+        );
+        bytes32 hashedBidderSig = keccak256(bidderSig);
+
+        address owner = hashedBidderSig.toEthSignedMessageHash().recover(
+            ownerApprovedSig
+        );
+
+        return (bidder, owner, auctionData);
     }
 }

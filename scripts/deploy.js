@@ -15,20 +15,23 @@ async function main() {
   const lock = await hre.ethers.deployContract("Lock", [unlockTime], {
     value: lockedAmount,
   });
-  const erc20 = await hre.ethers.deployContract("MockERC20", "ERC20");
-  const erc721 = await hre.ethers.deployContract("MockERC721", "ERC721");
+  const erc20 = await hre.ethers.deployContract("MockERC20", ["ERC20", "M20"]);
+  const erc721 = await hre.ethers.deployContract("MockERC721", [
+    "ERC721",
+    "M721",
+  ]);
   const marketplace = await hre.ethers.deployContract("Marketplace");
 
   await lock.waitForDeployment();
-  await erc20.waitForDeployment();
-  await erc721.waitForDeployment();
-  await marketplace.waitForDeployment();
 
   console.log(
     `Lock with ${ethers.formatEther(
       lockedAmount
     )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
   );
+  await erc20.waitForDeployment();
+  await erc721.waitForDeployment();
+  await marketplace.waitForDeployment();
   console.log(
     `ERC20 with ${ethers.formatEther(
       lockedAmount

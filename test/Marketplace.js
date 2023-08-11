@@ -1,100 +1,166 @@
 const { expect } = require("chai");
 const { AbiCoder } = require("ethers");
-const { ethers } = require("hardhat");
+// const { ethers } = require("hardhat");
 describe("Marketplace", function () {
-  let Marketplace,
+  let MarketplaceFactory,
+    MockERC20Factory,
+    MockERC721Factory,
     marketplace,
-    MockERC20,
     mockERC20,
-    MockERC721,
     mockERC721,
-    owner,
-    bidder,
-    signer;
+    seller,
+    buyer,
+    signer,
+    decimals;
 
+  const approveAmount = "1000";
   beforeEach(async function () {
-    // Get the signer accounts
-    [owner, bidder, signer] = await ethers.getSigners();
-
+    [seller, buyer, signer] = await hre.ethers.getSigners();
     // Deploying the MockERC20 contract
-    const MockERC20Factory = await ethers.getContractFactory("MockERC20");
-    mockERC20 = await MockERC20Factory.deploy("MockToken", "MCK");
-    // console.log(MockERC20Factory, " MockERC20Factory")
-    await mockERC20.deployed();
-    // console.log("MockERC20 Address:", mockERC20.address);
+    MockERC20Factory = await hre.ethers.deployContract("MockERC20", [
+      "ERC20",
+      "M20",
+    ]);
+    mockERC20 = await MockERC20Factory.waitForDeployment();
 
     // Deploying the MockERC721 contract
-    const MockERC721Factory = await ethers.getContractFactory("MockERC721");
-    mockERC721 = await MockERC721Factory.deploy("MockNFT", "MNFT");
-    // await mockERC721.deploy();
-    // console.log("MockERC721 Address:", mockERC721.address);
+    MockERC721Factory = await hre.ethers.deployContract("MockERC721", [
+      "ERC721",
+      "M721",
+    ]);
+    mockERC721 = await MockERC721Factory.waitForDeployment();
 
     // Deploying the Marketplace contract
-    const MarketplaceFactory = await ethers.getContractFactory("Marketplace");
-    marketplace = await MarketplaceFactory.deploy();
-    // await marketplace.deploy();
-    // console.log("Marketplace Address:", marketplace.address);
-    marketplace.address = "0x597C9bC3F00a4Df00F85E9334628f6cDf03A1184"
-    mockERC20.address = "0xbd65c58D6F46d5c682Bf2f36306D461e3561C747"
-    mockERC721.address = "0xFCE9b92eC11680898c7FE57C4dDCea83AeabA3ff"
+    MarketplaceFactory = await hre.ethers.deployContract("Marketplace");
+    marketplace = await MarketplaceFactory.waitForDeployment();
+
+    decimals = await mockERC20.decimals();
+    console.log("MockERC20 Address: ", mockERC20.target);
+    console.log("MockERC721 Address: ", mockERC721.target);
+    console.log("Marketplace Address: ", marketplace.target);
+    console.log("Decimals: ", decimals);
+
+    console.log("seller Address: ", seller.address);
+    console.log("buyer Address: ", buyer.address);
+    console.log("signer Address: ", signer.address);
   });
 
   describe("finishAuction", function () {
-    it("Should successfully complete the auction", async function () {
-      const mintNFT = await mockERC721.mint(owner.address).wait();
-      const tokenId = mintNFT.events?.find(e => e.event === 'Transfer').args.tokenId;
-      console.log("Token id ??? ", tokenId)
-      const mintNFT2 = await mockERC721.mint(bidder.address)
-      const auctionData = {
-        collectionAddress: marketplace.address,
-        erc20Address: mockERC20.address,
-        tokenId: 0,
-        bid: 100,
-      };
-      console.log(mintNFT)
-      console.log(owner.address, "ADDREESS")
-      // console.log("mint nft ", mintNFT)
-      // console.log(owner.address, "owner")
-      // console.log(bidder.address, "bidder")
-      // console.log(signer.address, "signer")
-      // console.log("owner nft ", await mockERC721.ownerOf(0))
-      // console.log("bidder nft ", await mockERC721.ownerOf(1))
-      // console.log("collectionAddress:", auctionData.collectionAddress);
-      // console.log("erc20Address:", auctionData.erc20Address);
-      // console.log("tokenId:", auctionData.tokenId);
-      // console.log("bid:", auctionData.bid);
+    it("Should successfully mint an NFT", async function () {
+      // Mint tokens to complete the transaction of the auction
+      await mockERC20.mint(
+        seller.address,
+        hre.ethers.parseUnits(approveAmount, decimals)
+      );
+      await mockERC20.mint(
+        buyer.address,
+        hre.ethers.parseUnits(approveAmount, decimals)
+      );
 
-      const coder = ethers.AbiCoder.defaultAbiCoder();
+      expect(await mockERC20.balanceOf(seller.address)).to.equal(
+        hre.ethers.parseUnits(approveAmount, decimals)
+      );
+      expect(await mockERC20.balanceOf(buyer.address)).to.equal(
+        hre.ethers.parseUnits(approveAmount, decimals)
+      );
+      // console.log(mintNFT, "MINTED? ??/");
+
+      // Seller is going to mint an NFT
+      await mockERC721.mint(seller.address);
+      expect(await mockERC721.ownerOf(0)).to.equal(seller.address);
+      // Seller is allowing marketplace to exchange his NFT with id = 0
+      await mockERC721.approve(marketplace.target, 0);
+      expect(await mockERC721.getApproved(0)).to.equal(marketplace.target);
+
+      // Allow Marketplace to spend for the buyer
+      // First we connect buyer to the instance of mockERC20
+      const buyerApproval = mockERC20.connect(buyer);
+      await buyerApproval.approve(
+        marketplace.target,
+        hre.ethers.parseUnits(approveAmount, decimals)
+      );
+      expect(
+        await buyerApproval.allowance(buyer.address, marketplace.target)
+      ).to.equal(hre.ethers.parseUnits(approveAmount, decimals));
+
+      const firstAllowance = await mockERC20.allowance(
+        buyer.address,
+        marketplace.target
+      );
+
+      const auctionData = [
+        mockERC721.target,
+        mockERC20.target,
+        0,
+        hre.ethers.parseUnits(approveAmount, decimals),
+        // approveAmount,
+      ];
+      const coder = hre.ethers.AbiCoder.defaultAbiCoder();
       // Generating signatures
-      const messageHash = ethers.keccak256(
-        coder.encode(
-          ["address", "address", "uint256", "uint256"],
-          [
-            auctionData.collectionAddress,
-            auctionData.erc20Address,
-            auctionData.tokenId,
-            auctionData.bid,
-          ]
-        )
+      // const messageHash = coder.encode(
+      //   ["address", "address", "uint256", "uint256"],
+      //   [auctionData[0], auctionData[1], auctionData[2], auctionData[3]]
+      // );
+
+      const messageHash = hre.ethers.solidityPacked(
+        ["address", "address", "uint256", "uint256"],
+        [auctionData[0], auctionData[1], auctionData[2], auctionData[3]]
+      );
+      console.log("messageHash, ", messageHash);
+      const bidderSig = await buyer.signMessage(
+        hre.ethers.utils.arrayify(messageHash)
+      );
+      const hashedBidderSig = hre.ethers.solidityKeccak256(bidderSig);
+      const ownerApprovedSig = await seller.signMessage(
+        hre.ethers.utils.arrayify(hashedBidderSig)
       );
 
-      const bidderSig = await bidder.signMessage(ethers.getBytes(messageHash));
-      const hashedBidderSig = ethers.keccak256(bidderSig);
-      const ownerApprovedSig = await signer.signMessage(
-        ethers.getBytes(hashedBidderSig)
+      const newTest = hre.ethers.verifyMessage(messageHash, bidderSig);
+      console.log("NEW TEST", newTest);
+
+      const newTest2 = hre.ethers.verifyMessage(
+        hashedBidderSig,
+        ownerApprovedSig
       );
+      console.log("NEW TEST 2", newTest2);
 
-
-      // Approving the necessary transfers
-      await mockERC20.connect(bidder).approve(marketplace.address, 100);
-      await mockERC721.connect(owner).approve(marketplace.address, 0);
-
+      // const test3 = coder.decode(
+      //   ["address", "address", "uint256", "uint256"],
+      //   messageHash
+      // );
+      // console.log("TEST 3 ", test3);
       // Completing the auction
-      await marketplace.finishAuction(auctionData, bidderSig, ownerApprovedSig);
+      // const buyerCallingMarketplace = marketplace.connect(buyer);
+      // console.log(auctionData, "auctionData");
+      const caca = marketplace.connect(buyer);
+      const testingggg = await caca.returnStuff(
+        [auctionData[0], auctionData[1], auctionData[2], auctionData[3]],
+        bidderSig,
+        ownerApprovedSig
+      );
 
+      console.log(testingggg, "testingggg");
       // Assertions
-      expect(await mockERC20.balanceOf(bidder.address)).to.equal(900);
-      expect(await mockERC721.ownerOf(0)).to.equal(bidder.address);
+      // expect(await mockERC20.balanceOf(buyer.address)).to.equal(
+      //   hre.ethers.parseUnits(9000, decimals)
+      // );
+      expect(await mockERC721.ownerOf(0)).to.equal(buyer.address);
     });
   });
 });
+// const actualAllowance = await buyerApproval.allowance(
+//   buyer.address,
+//   marketplace.target
+// );
+// console.log("Actual Allowance:", actualAllowance.toString());
+
+// await buyerApproval.increaseAllowance(
+//   marketplace.target,
+//   hre.ethers.parseUnits(approveAmount, decimals)
+// );
+
+// const newAllowance = await buyerApproval.allowance(
+//   buyer.address,
+//   marketplace.target
+// );
+// console.log("new Allowance:", newAllowance.toString());
