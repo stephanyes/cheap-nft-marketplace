@@ -1,4 +1,4 @@
-const Web3 = require("web3").default;
+const Web3 = require("web3");
 const {
   mintTokens,
   transferAllFunds,

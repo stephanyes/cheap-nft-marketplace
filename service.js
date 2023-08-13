@@ -8,6 +8,7 @@ const {
   ERC721_ABI,
   ERC721,
 } = require("./contracts");
+const { ethers, keccak256 } = require("ethers");
 const BigNumber = require("bignumber.js");
 const listings = [];
 let transactionQueue = [];
@@ -51,10 +52,16 @@ const NftService = {
     return listing;
   },
 
-  mintTokens: async function({fromAddress, privateKey, toAddress, amount}) {
+  mintTokens: async function ({ fromAddress, privateKey, toAddress, amount }) {
     try {
-      const test = await mintTokens(web3, fromAddress, privateKey, toAddress, amount)
-      return test
+      const test = await mintTokens(
+        web3,
+        fromAddress,
+        privateKey,
+        toAddress,
+        amount
+      );
+      return test;
     } catch (error) {
       console.error("Error:", error);
       throw error; // or return some error message to handle it gracefully
@@ -69,17 +76,15 @@ const NftService = {
     return getAccounts();
   },
 
-  sign: ({ toBeSigned, privateKey, dataString }) => {
-    if (!toBeSigned || !privateKey) {
+  sign: ({ dataString, privateKey }) => {
+    if (!dataString || !privateKey) {
       throw new Error("Data or private key missing");
     }
-    const prefixedMessage = web3.eth.accounts.hashMessage(dataString);
-
-    const signature = web3.eth.accounts.sign(prefixedMessage, privateKey);
+    const signature = web3.eth.accounts.sign(dataString, privateKey);
 
     // Try recovery with both methods
     const recoveredAddress1 = web3.eth.accounts.recover(
-      prefixedMessage,
+      dataString,
       signature.signature
     );
     const recoveredAddress2 = web3.eth.accounts.recover(
@@ -105,15 +110,20 @@ const NftService = {
       privateKey,
       offerSignedMessage,
     } = auctionData;
-    // let dataString;
+    let dataString;
+
+    const messageHash = ethers.solidityPacked(
+      ["address", "address", "uint256", "uint256"],
+      [collectionAddress, erc20Address, tokenId, ethers.parseUnits(bid, 18)]
+    );
 
     if (offerSignedMessage) {
-      dataString = `${offerSignedMessage}`;
+      dataString = keccak256(offerSignedMessage);
     } else {
-      dataString = `${collectionAddress}${erc20Address}${tokenId.toString()}${bid.toString()}`;
+      dataString = keccak256(messageHash);
     }
-    const toBeSigned = web3.utils.keccak256(dataString);
-    return { toBeSigned, privateKey, dataString };
+
+    return { dataString, privateKey };
   },
 
   getBalance: async function (address) {
@@ -135,13 +145,13 @@ const NftService = {
     const contract = new web3.eth.Contract(ABI, CONTRACT_ADDRESS);
     const mockERC20Contract = new web3.eth.Contract(ERC20_ABI, ERC20);
     const mockERC721Contract = new web3.eth.Contract(ERC721_ABI, ERC721);
-    console.log("llego aca?????")
+    console.log("llego aca?????");
     const nonceA = await web3.eth.getTransactionCount(senderAccount);
     const nonceB = await web3.eth.getTransactionCount(bidderAddress);
-    const nonceC = nonceA + new BigNumber
+    const nonceC = nonceA + new BigNumber();
     try {
-      const transformedBid = web3.utils.toBigInt(obj.bid);
-      const transformedTokenId = web3.utils.toBigInt(obj.tokenId);
+      const transformedBid = ethers.parseUnits(obj.bid, 18);
+      const transformedTokenId = obj.tokenId;
       console.log("000000000000000000000000");
 
       const gasPrice = await web3.eth.getGasPrice();
@@ -228,19 +238,20 @@ const NftService = {
         .call();
       console.log("Allowance set by sender for CONTRACT_ADDRESS: ", allowance2);
       console.log("Transformed Bid:", transformedBid);
+      console.log("Transformed Token Id:", transformedTokenId);
 
       let gasEstimateMarketplace = await contract.methods
-      .finishAuction(
-        [
-          obj.collectionAddress,
-          obj.erc20Address,
-          transformedTokenId,
-          transformedBid,
-        ],
-        bidderSig,
-        ownerApprovedSig
-      )
-      .estimateGas({ from: senderAccount });
+        .finishAuction(
+          [
+            obj.collectionAddress,
+            obj.erc20Address,
+            transformedTokenId,
+            transformedBid,
+          ],
+          bidderSig,
+          ownerApprovedSig
+        )
+        .estimateGas({ from: senderAccount });
       console.log("gasEstimate Marketplace ", gasEstimateMarketplace);
       // Buyer wants NFT
       const marketPlaceAction = contract.methods

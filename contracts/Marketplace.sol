@@ -53,7 +53,7 @@ contract Marketplace {
     function returnStuff(
         AuctionData memory auctionData,
         bytes memory bidderSig,
-        bytes memory ownerApprovedSig) public view returns (address, address, AuctionData memory) {
+        bytes memory ownerApprovedSig) public view returns (address, address, AuctionData memory, bytes32) {
 
         bytes32 messagehash = keccak256(
             abi.encodePacked(
@@ -73,6 +73,6 @@ contract Marketplace {
             ownerApprovedSig
         );
 
-        return (bidder, owner, auctionData);
+        return (bidder, owner, auctionData, messagehash);
     }
 }
