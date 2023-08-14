@@ -197,6 +197,37 @@ async function getTokenBalance(
   }
 }
 
+function generateApprovalABI(contract, methodFunc, params) {
+  return contract.methods[methodFunc](...params).encodeABI();
+}
+
+function createTxObject({ web3, nonce, from, to, data, gasEstimate, gasPrice, maxGasLimit }) {
+  const finalGasLimit = Math.min(gasEstimate, maxGasLimit);
+  return {
+    nonce: web3.utils.toHex(nonce),
+    from,
+    to,
+    data,
+    gas: finalGasLimit,
+    gasPrice: web3.utils.toHex(gasPrice)
+  };
+}
+
+function estimateGas(contract, methodName, params, sender) {
+  console.log("estimate gassssss")
+
+  return contract.methods[methodName](...params).estimateGas({ from: sender });
+}
+
+function sendSignedTx(web3Instance, signedTx) {
+  return web3Instance.eth.sendSignedTransaction(signedTx.raw || signedTx.rawTransaction);
+}
+
+function signTx(web3Instance, tx, privateKey) {
+  return web3Instance.eth.accounts.signTransaction(tx, privateKey);
+}
+
+
 module.exports = {
   validateBody,
   limitPayloadSize,
@@ -208,4 +239,9 @@ module.exports = {
   transferAllFunds,
   getTokenBalance,
   getAccountBalance,
+  generateApprovalABI,
+  createTxObject,
+  estimateGas,
+  sendSignedTx,
+  signTx
 };

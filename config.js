@@ -16,20 +16,51 @@ const {
 
 const web3 = new Web3(process.env.INFURA_PROJECT_ID);
 const contract = new web3.eth.Contract(ABI, CONTRACT_ADDRESS);
+const mockERC20Contract = new web3.eth.Contract(ERC20_ABI, ERC20);
+const mockERC721Contract = new web3.eth.Contract(ERC721_ABI, ERC721);;
+const BN = Web3.utils.BN
 
-const address = process.env.USER_A;
-const address2 = process.env.USER_B;
-const address_pk = process.env.USER_A_PK;
-const address2_pk = process.env.USER_B_PK;
 
-getAccountBalance(web3, address);
-getAccountBalance(web3, address2);
+module.exports = { web3, contract, mockERC20Contract, mockERC721Contract, BN };
 
-getTokenBalance(web3, address, ERC20, ERC20_ABI, "MockERC20");
-getTokenBalance(web3, address2, ERC20, ERC20_ABI, "MockERC20");
 
-getTokenBalance(web3, address, ERC721, ERC721_ABI, "MockERC721");
-getTokenBalance(web3, address2, ERC721, ERC721_ABI, "MockERC721");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// const address = process.env.USER_A;
+// const address2 = process.env.USER_B;
+// const address_pk = process.env.USER_A_PK;
+// const address2_pk = process.env.USER_B_PK;
+
+// getAccountBalance(web3, address);
+// getAccountBalance(web3, address2);
+
+// getTokenBalance(web3, address, ERC20, ERC20_ABI, "MockERC20");
+// getTokenBalance(web3, address2, ERC20, ERC20_ABI, "MockERC20");
+
+// getTokenBalance(web3, address, ERC721, ERC721_ABI, "MockERC721");
+// getTokenBalance(web3, address2, ERC721, ERC721_ABI, "MockERC721");
 
 // mintTokens(web3, address2, address2_pk, address2, 1)
 //   .then((receipt) => {
@@ -38,5 +69,3 @@ getTokenBalance(web3, address2, ERC721, ERC721_ABI, "MockERC721");
 //   .catch((error) => {
 //     console.error("Error transferring funds: ", error);
 //   });
-
-module.exports = { web3, contract };
