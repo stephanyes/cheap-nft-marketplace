@@ -1,6 +1,6 @@
-const { sendTxAndGetHash, mintTokens, signTx, estimateGas, createTxObject, generateApprovalABI, checkBalances, sign } = require("../utils");
+const { sendTxAndGetHash, mintTokens, signTx, estimateGas, createTxObject, generateApprovalABI, checkBalances, sign } = require("../utils/utils");
 const { web3, contract, mockERC20Contract, mockERC721Contract, BN, getERC20Decimals } = require("../config/config");
-const { CONTRACT_ADDRESS, ERC20, ERC721 } = require("../contracts");
+const { CONTRACT_ADDRESS, ERC20, ERC721 } = require("../contracts/contracts");
 const { ethers, keccak256 } = require("ethers");
 const listings = [];
 
@@ -22,12 +22,18 @@ const NftService = {
   },
   processBid: function (listing, bidAmount, buyerAddress) {
     bidAmount = parseInt(bidAmount);
-    if (listing.isAuction && bidAmount >= parseInt(listing.price)) {
-      return { ...listing, price: bidAmount.toString(), buyerAddress: buyerAddress };
-    } else if (!listing.isAuction && bidAmount === parseInt(listing.price)) {
-      return { ...listing, buyerAddress: buyerAddress };
+    if (listing.isAuction === "true") {
+      if (bidAmount >= parseInt(listing.price)) {
+        return { ...listing, price: bidAmount.toString(), buyerAddress: buyerAddress }; // The new bid is valid and higher than the current price.
+      } else {
+        throw new Error("Bid amount too low for auction");
+      }
     } else {
-      throw new Error("Invalid bid");
+      if (bidAmount === parseInt(listing.price)) {
+        return { ...listing, buyerAddress: buyerAddress, status: "sold" };// The NFT is purchased at the listed fixed price.
+      } else {
+        throw new Error("Invalid amount for fixed price purchase");
+      }
     }
   },
   mintTokens: async ({ fromAddress, privateKey, toAddress, amount, token }) =>{
@@ -96,8 +102,10 @@ const NftService = {
       console.log("77777777777777777777777777777777777")
       // New nonce needed from sender because of the transaction above
       const nonceD = await web3.eth.getTransactionCount(senderAccount, "pending");
+      console.log("//////////////////////////////")
       const currentGasPrice2 = await web3.eth.getGasPrice();
       const currentGasPriceBN2 = new BN(currentGasPrice2);
+      console.log("******************************")
       const adjustedGasPriceBN2 = currentGasPriceBN2.mul(new BN(120)).div(new BN(100));  // increases the gas price by 20%
       const gasEstimateMarketplace = await estimateGas(contract, "finishAuction",  [[ obj.collectionAddress, obj.erc20Address, transformedTokenId, transformedBid ], bidderSig, ownerApprovedSig ], senderAccount)
       console.log("8888888888888888888888888888")

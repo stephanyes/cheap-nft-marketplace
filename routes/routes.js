@@ -1,6 +1,6 @@
 const express = require("express");
-const { validateBody } = require("../utils");
-const { listNftSchema, placeBidSchema, signatureSchema } = require("../schema");
+const { validateBody } = require("../utils/utils");
+const { listNftSchema, placeBidSchema, signatureSchema } = require("../schema/schema");
 const NftController = require("../controller/controller");
 const router = express.Router();
 

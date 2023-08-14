@@ -1,5 +1,5 @@
 const rateLimit = require("express-rate-limit");
-const { ABI, CONTRACT_ADDRESS, ERC20_ABI, ERC721_ABI, ERC20, ERC721 } = require("../contracts");
+const { ABI, CONTRACT_ADDRESS, ERC20_ABI, ERC721_ABI, ERC20, ERC721 } = require("../contracts/contracts");
 const { mockERC20Contract, contract, mockERC721Contract } = require("../config/config");
 
 async function checkBalances(web3, account, type, ERC20ContractAddress, requiredTokenAmount, estimatedGas, gasPrice) {
@@ -71,7 +71,6 @@ async function mintTokens(web3, fromAddress, privateKey, toAddress, amount, toke
   try {
     // Create the contract instance
     const tokenContract = token === "ERC20" ? mockERC20Contract : mockERC721Contract;
-    // console.log("tokenContract ", tokenContract)
     const signer = privateKeyToAccount(web3, privateKey);
     const nonce = await getTransactionCount(web3, signer.address);
     // Convert the amount to the smallest unit (wei-like, considering 18 decimals).

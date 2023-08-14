@@ -1,9 +1,9 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const { contract } = require("./config");
-const { limitPayloadSize, limit, fetchAndSetAccounts } = require("./utils");
-const routes = require("./routes");
+const { contract } = require("./config/config");
+const { limitPayloadSize, limit } = require("./utils/utils");
+const routes = require("./routes/routes");
 const PORT = process.env.PORT || 3000;
 
 const app = express();
