@@ -2,9 +2,7 @@ const { getAccounts, mintTokens, signTx, sendSignedTx, estimateGas, createTxObje
 const { web3, contract, mockERC20Contract, mockERC721Contract, BN } = require("./config");
 const { ABI, CONTRACT_ADDRESS, ERC20_ABI, ERC20, ERC721_ABI, ERC721 } = require("./contracts");
 const { ethers, keccak256 } = require("ethers");
-const BigNumber = require("bignumber.js");
 const listings = [];
-let transactionQueue = [];
 
 const NftService = {
   createListing: ({ sellerAddress, collectionAddress, isAuction, price, tokenId, erc20Address }) => {
@@ -36,7 +34,7 @@ const NftService = {
       return test;
     } catch (error) {
       console.error("Error:", error);
-      throw error; // or return some error message to handle it gracefully
+      throw error;
     }
   },
 

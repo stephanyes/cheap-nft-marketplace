@@ -47,16 +47,7 @@ const NftController = {
     }
   },
   finalizeTrade: async (req, res) => {
-    const {
-      senderAccount,
-      listingId,
-      bidderSig,
-      ownerApprovedSig,
-      bidderAddress,
-      privateKeyA,
-      privateKeyB
-    } = req.body;
-
+    const { senderAccount, listingId, bidderSig, ownerApprovedSig, bidderAddress, privateKeyA, privateKeyB } = req.body;
     const allListings = NftService.getListings();
     const listing = allListings.find(
       (listing) => listing.tokenId === listingId
@@ -67,23 +58,10 @@ const NftController = {
 
     try {
 
-      const obj = {
-        tokenId: listingId,
-        bid: listing.price,
-        collectionAddress: listing.collectionAddress,
-        erc20Address: listing.erc20Address,
-        privateKey: privateKeyA,
+      const obj = { tokenId: listingId, bid: listing.price, collectionAddress: listing.collectionAddress, erc20Address: listing.erc20Address, privateKey: privateKeyA,
       };
       const test = NftService.prepareData(obj);
-      const receipt = await NftService.finalizeTrade(
-        senderAccount,
-        test,
-        bidderSig,
-        ownerApprovedSig,
-        bidderAddress,
-        privateKeyA,
-        privateKeyB,
-        obj
+      const receipt = await NftService.finalizeTrade( senderAccount, test, bidderSig, ownerApprovedSig, bidderAddress, privateKeyA, privateKeyB, obj
       );
       res.json({ success: true, receipt });
     } catch (error) {

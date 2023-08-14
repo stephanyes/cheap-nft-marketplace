@@ -32,9 +32,7 @@ describe("MockERC721", function () {
     });
 
     it("It should emit a Transfer event when minted", async function () {
-      await expect(mockERC721.mint(addr1.address))
-        .to.emit(mockERC721, "Transfer")
-        .withArgs(ZERO_ADDRESS, addr1.address, 0);
+      await expect(mockERC721.mint(addr1.address)).to.emit(mockERC721, "Transfer").withArgs(ZERO_ADDRESS, addr1.address, 0);
     });
   });
 });

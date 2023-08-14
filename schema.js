@@ -24,8 +24,4 @@ const signatureSchema = Joi.object({
   offerSignedMessage: Joi.string().optional(),
 });
 
-module.exports = {
-  listNftSchema,
-  placeBidSchema,
-  signatureSchema,
-};
+module.exports = { listNftSchema, placeBidSchema, signatureSchema };

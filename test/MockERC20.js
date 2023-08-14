@@ -31,11 +31,8 @@ describe("MockERC20", function () {
     });
 
     it("It should emit a Transfer event when minted", async function () {
-      await expect(mockERC20.mint(addr1.address, 100))
-        .to.emit(mockERC20, "Transfer")
-        .withArgs(ZERO_ADDRESS, addr1.address, 100);
+      await expect(mockERC20.mint(addr1.address, 100)).to.emit(mockERC20, "Transfer").withArgs(ZERO_ADDRESS, addr1.address, 100);
     });
   });
 
-  // You can continue adding more tests for any other functionality you'd like to test.
 });
