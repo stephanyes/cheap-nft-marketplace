@@ -46,7 +46,7 @@ describe("Marketplace", function () {
       // Generating signatures
       const messageHash = ethers.solidityPacked( ["address", "address", "uint256", "uint256"], [auctionData[0], auctionData[1], auctionData[2], auctionData[3]]);
       const keccack = keccak256(messageHash);
-      const bidderSig = await buyer.signMessage(Utils.arrayify(keccack)); // ASDLKUYASDJKGASDJKASGHDJKGSD
+      const bidderSig = await buyer.signMessage(Utils.arrayify(keccack)); // ASDLKUYASDJKGASDJKASGHDJKGSD this line was the one that unblocked everything. Utils.arrayify was needed
       const hashedBidderSig = keccak256(bidderSig);
       const ownerApprovedSig = await seller.signMessage( Utils.arrayify(hashedBidderSig));
       await marketplace.finishAuction( [auctionData[0], auctionData[1], auctionData[2], auctionData[3]], bidderSig, ownerApprovedSig);

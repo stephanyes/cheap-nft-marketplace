@@ -1,11 +1,10 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const { web3, contract } = require("./config");
+const { contract } = require("./config");
 const { limitPayloadSize, limit, fetchAndSetAccounts } = require("./utils");
 const routes = require("./routes");
 const PORT = process.env.PORT || 3000;
-const TOTAL_USERS = process.env.TOTAL_USERS || 2;
 
 const app = express();
 app.use(express.json());
@@ -13,10 +12,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors()); // enable all cors request (Simple Usage)
 app.use(limit);
 
-// Setting req & res timeout to 5000 ms
+// Setting req & res timeout to 1 minute
 app.use((req, res, next) => {
-  req.setTimeout(10000);
-  res.setTimeout(10000);
+  req.setTimeout(60000);
+  res.setTimeout(60000);
   next();
 });
 
