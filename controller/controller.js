@@ -1,8 +1,9 @@
 const NftService = require("../service/service");
+const { getListing } = require("../redis/redis")
 const NftController = {
-  createListing: (req, res) => {
+  createListing: async (req, res) => {
     try {
-      const newListing = NftService.createListing(req.body);
+      const newListing = await NftService.createListing(req.body);
       res.status(201).json(newListing);
     } catch (error) {
       res.status(400).json({ error: error.message });
@@ -26,8 +27,8 @@ const NftController = {
         .json({ error: "Failed to finish trade", details: error.message });
     }
   },
-  listings: (req, res) => {
-    res.status(200).json(NftService.getListings());
+  listings: async (req, res) => {
+    res.status(200).json(await NftService.getListings());
   },
   mint: async (req, res) => {
     try {

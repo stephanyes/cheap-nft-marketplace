@@ -2,22 +2,32 @@ const { sendTxAndGetHash, mintTokens, signTx, estimateGas, createTxObject, gener
 const { web3, contract, mockERC20Contract, mockERC721Contract, BN, getERC20Decimals } = require("../config/config");
 const { CONTRACT_ADDRESS, ERC20, ERC721 } = require("../contracts/contracts");
 const { ethers, keccak256 } = require("ethers");
+const { storeListing, getAllListings } = require("../redis/redis")
 const listings = [];
 
 const NftService = {
-  getListings: () => {
-    return listings;
+  getListings: async () => {
+    try {
+        const arr = await getAllListings();
+        console.log(arr, " TESTING REDDIS ");
+        return listings;
+    } catch (err) {
+        console.error("Failed to retrieve listings:", err);
+        return [];  // or some other fallback value
+    }
   },
-  createListing: ({ sellerAddress, collectionAddress, isAuction, price, tokenId, erc20Address }) => {
+  createListing: async ({ sellerAddress, collectionAddress, isAuction, price, tokenId, erc20Address }) => {
     const newListing = { id: listings.length + 1, sellerAddress, isAuction, price, tokenId, erc20Address, collectionAddress, };
     listings.push(newListing);
+    await storeListing(newListing)
     return newListing;
   },
-  placeBid: function ({ buyerAddress, tokenId, bidAmount }) {
+  placeBid: async function ({ buyerAddress, tokenId, bidAmount }) {
     const listingIndex = listings.findIndex((listing) => listing.tokenId === tokenId);
     if (listingIndex === -1) throw new Error("Listing not found");
     const updatedListing = this.processBid(listings[listingIndex], bidAmount, buyerAddress); 
     listings[listingIndex] = updatedListing;
+    await storeListing(updatedListing)
     return updatedListing;
   },
   processBid: function (listing, bidAmount, buyerAddress) {
