@@ -38,3 +38,99 @@ To stand out, feel free to add as much functionalities and capabilities as you l
 - Elegant and simpler solution
 - Senseful folder structure
 - Scalable solution
+
+
+## Start project
+
+- Install dependencies ``` npm install ```
+- Run server ``` npm run start ```
+
+
+## API Endpoints
+
+We have a Postman collection in ```postman_marketplace.json``` ready for you to use
+
+#### GET
+- **Get all listings**
+  http://localhost:3000/api/all-listings
+
+#### POST
+- **Create Listing**
+  http://localhost:3000/api/createListing
+
+  Params: tokenId, price, isAuction, sellerAddress, collectionAddress, erc20Address
+
+- **Place bid**
+  http://localhost:3000/api/placeBid
+
+  Params: tokenId, bidAmount, buyerAddress
+
+- **User A sign**
+  http://localhost:3000/api/sign
+
+  Params: privateKey, collectionAddress, erc20Address, tokenId, bid, offerSignedMessage
+
+- **User B sign**
+  http://localhost:3000/api/sign
+
+  Params: privateKey, collectionAddress, erc20Address, tokenId, bid
+
+- **Finalize trade**
+  http://localhost:3000/api/finishAuction
+
+  Params: senderAccount, listingId, bidderSig, ownerApprovedSig, bidderAddress, privateKeyA, privateKeyB
+
+- **Mint Token**
+  http://localhost:3000/api/mintToken
+
+  Params: fromAddress, toAddress, privateKey, amount, token
+
+
+## Testing
+
+With the help of Hardhat I was in the need of understanding why my backend was not performing the step by step needed to execute correctly finishAuction() in the Marketplace's smart contract.
+Building each test suit helped me understand how solidity works and why I failing when trying to make it functional. By doing this I managed to understand this part of the contract which at first was a bit tricky for me:
+```
+        bytes32 messagehash = keccak256(
+            abi.encodePacked(
+                auctionData.collectionAddress,
+                auctionData.erc20Address,
+                auctionData.tokenId,
+                auctionData.bid
+            )
+        ); 
+```
+
+I had issues trying to replicate abi.encodePacked() with ethers/web3 packages and it made sense after a few days of debugging. That's the reason why I modified the solidity smart contract of the market place adding this function that simply returns ```bidder```, ```owner```, ``` auctionData```, ```messagehash``` :
+
+```
+    function returnStuff(
+        AuctionData memory auctionData,
+        bytes memory bidderSig,
+        bytes memory ownerApprovedSig) public view returns (address, address, AuctionData memory, bytes32) {
+
+        bytes32 messagehash = keccak256(
+            abi.encodePacked(
+                auctionData.collectionAddress,
+                auctionData.erc20Address,
+                auctionData.tokenId,
+                auctionData.bid
+            )
+        );
+
+        address bidder = messagehash.toEthSignedMessageHash().recover(
+            bidderSig
+        );
+        bytes32 hashedBidderSig = keccak256(bidderSig);
+
+        address owner = hashedBidderSig.toEthSignedMessageHash().recover(
+            ownerApprovedSig
+        );
+
+        return (bidder, owner, auctionData, messagehash);
+    }
+```
+
+I found out that the problem was how I was hashing the messages in order to succesfully buy an NFT.
+
+To run the tests just run the following script ``` npm run test ```

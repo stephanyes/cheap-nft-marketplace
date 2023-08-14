@@ -4,12 +4,15 @@
   "description": "Ratherlabs Senior Backend challenge - NFT Marketplace",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npx hardhat test",
     "start": "nodemon index.js"
   },
   "author": "Stephano Iucciolino @stephanyes",
   "license": "ISC",
   "dependencies": {
+    "@openzeppelin/contracts": "^4.9.3",
+    "alchemy-sdk": "^2.9.2",
+    "bignumber.js": "^9.1.1",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
@@ -17,7 +20,14 @@
     "express-rate-limit": "^6.8.1",
     "joi": "^17.9.2",
     "nodemon": "^3.0.1",
-    "redis": "^4.6.7",
-    "web3": "^4.0.3"
+    "redis": "^4.6.7"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^3.0.4",
+    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+    "ethereum-waffle": "^4.0.10",
+    "ethers": "^6.7.0",
+    "hardhat": "^2.17.1",
+    "web3": "^1.10.0"
   }
 }
