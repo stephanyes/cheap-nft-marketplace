@@ -5,6 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "npx hardhat test",
+    "redis:up": "docker compose up -d --remove-orphans",
+    "redis:rm": "docker compose rm -s -f -v",
+    "redis:logs": "docker-compose logs -f",
     "start": "nodemon index.js"
   },
   "author": "Stephano Iucciolino @stephanyes",

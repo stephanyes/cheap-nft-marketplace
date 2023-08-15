@@ -1,30 +1,23 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const { contract } = require("./config/config");
-const { limitPayloadSize, limit } = require("./utils/utils");
+const { limitPayloadSize, limit } = require("./middleware/limit");
+const { timeout } = require('./middleware/timeout');
+const { client } = require("./redis/redis")
 const routes = require("./routes/routes");
+
 const PORT = process.env.PORT || 3000;
 
+client.connect().then(() => console.log("Connection finished")).catch((err) => console.err(err))
 const app = express();
+
+// Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors()); // enable all cors request (Simple Usage)
 app.use(limit);
-
-// Setting req & res timeout to 1 minute
-app.use((req, res, next) => {
-  req.setTimeout(60000);
-  res.setTimeout(60000);
-  next();
-});
-
-// Create Users A & B
-// fetchAndSetAccounts(web3, TOTAL_USERS);
-console.log(`Contract address ${contract.options.address}`);
-
-// Limit payload for security
-app.use(limitPayloadSize);
+app.use(timeout);
+app.use(limitPayloadSize); // Limit payload for security
 
 // Routes
 app.use(routes);
