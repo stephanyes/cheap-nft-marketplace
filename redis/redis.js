@@ -1,26 +1,33 @@
 const redis = require('redis');
-let redisClient;
+const { promisify } = require("util");
+let client, hGetAllAsync, keysAsync;
 
 (async () => {
-  redisClient = redis.createClient();
+  client = redis.createClient({
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT
+});
 
-  redisClient.on("error", (error) => console.error(`Error : ${error}`));
-  redisClient.on('connect', () => {
+  client.on("error", (error) => console.error(`Error : ${error}`));
+  client.on('connect', () => {
     console.log('Connected to Redis');
   });
-  await redisClient.connect();
+//   await client.connect();
+  hGetAllAsync = promisify(client.hGetAll).bind(client);
+  keysAsync = promisify(client.keys).bind(client);
 })();
 
 async function storeListing(listing) {
     const key = `listing:${listing.id}`;
     const value = JSON.stringify(listing);
-    await redisClient.set(key, value);
+    await client.set(key, value, redis.print);
+    // console.log("asdasd::" , await client.get(key))
     console.log("listing stored")
 }
 
 function getListing(id, callback) {
     const key = `listing:${id}`;
-    redisClient.get(key, (err, result) => {
+    client.get(key, (err, result) => {
         if (err) {
             callback(err);
             return;
@@ -30,29 +37,15 @@ function getListing(id, callback) {
 }
 
 async function getAllListings() {
-    const all = await redisClient.hGetAll('listing')
-
-    console.log("ALLG", all)
-    // return new Promise((resolve, reject) => {
-    //     redisClient.keys('listing:*', (err, keys) => {
-    //         if (err) return reject(err);
-
-    //         if (keys.length === 0) return resolve([]);
-
-    //         const multi = redisClient.multi();
-    //         keys.forEach(key => multi.get(key));
-
-    //         multi.exec((err, listings) => {
-    //             if (err) return reject(err);
-
-    //             resolve(listings);
-    //         });
-    //     });
-    // });
+    const keys = await client.keys('*');
+    const valuesPromises = keys.map(key => client.get(key));
+    const values = await Promise.all(valuesPromises);
+    const objectsArray = values.map(valueString => JSON.parse(valueString))
+    return objectsArray;
 }
 
 module.exports = {
-    redisClient,
+    client,
     storeListing,
     getListing,
     getAllListings

@@ -4,11 +4,11 @@ const cors = require("cors");
 const { contract } = require("./config/config");
 const { limitPayloadSize, limit } = require("./utils/utils");
 const routes = require("./routes/routes");
-const redis = require('redis');
+const { client } = require("./redis/redis")
 const PORT = process.env.PORT || 3000;
 
 const app = express();
-
+client.connect().then(() => console.log("connected?")).catch((err) => console.err(err))
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors()); // enable all cors request (Simple Usage)

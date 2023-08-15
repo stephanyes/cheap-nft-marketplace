@@ -9,15 +9,14 @@ const NftService = {
   getListings: async () => {
     try {
         const arr = await getAllListings();
-        console.log(arr, " TESTING REDDIS ");
-        return listings;
+        return arr;
     } catch (err) {
         console.error("Failed to retrieve listings:", err);
-        return [];  // or some other fallback value
+        return [];
     }
   },
   createListing: async ({ sellerAddress, collectionAddress, isAuction, price, tokenId, erc20Address }) => {
-    const newListing = { id: listings.length + 1, sellerAddress, isAuction, price, tokenId, erc20Address, collectionAddress, };
+    const newListing = { id: listings.length + 1, sellerAddress, isAuction, price, tokenId, erc20Address, collectionAddress };
     listings.push(newListing);
     await storeListing(newListing)
     return newListing;
