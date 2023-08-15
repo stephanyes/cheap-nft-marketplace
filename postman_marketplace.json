@@ -16,17 +16,17 @@
 					"urlencoded": [
 						{
 							"key": "tokenId",
-							"value": "120",
+							"value": "121",
 							"type": "text"
 						},
 						{
 							"key": "price",
-							"value": "20000",
+							"value": "1500",
 							"type": "text"
 						},
 						{
 							"key": "isAuction",
-							"value": "true",
+							"value": "false",
 							"type": "text"
 						},
 						{
@@ -47,12 +47,12 @@
 					]
 				},
 				"url": {
-					"raw": "http://localhost:3000/api/createListing",
+					"raw": "http://localhost:{{PORT}}/api/createListing",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "3000",
+					"port": "{{PORT}}",
 					"path": [
 						"api",
 						"createListing"
@@ -67,12 +67,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:3000/api/all-listings",
+					"raw": "http://localhost:{{PORT}}/api/all-listings",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "3000",
+					"port": "{{PORT}}",
 					"path": [
 						"api",
 						"all-listings"
@@ -91,12 +91,12 @@
 					"urlencoded": [
 						{
 							"key": "tokenId",
-							"value": "120",
+							"value": "121",
 							"type": "text"
 						},
 						{
 							"key": "bidAmount",
-							"value": "23000",
+							"value": "1500",
 							"type": "text"
 						},
 						{
@@ -107,12 +107,12 @@
 					]
 				},
 				"url": {
-					"raw": "http://localhost:3000/api/placeBid",
+					"raw": "http://localhost:{{PORT}}/api/placeBid",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "3000",
+					"port": "{{PORT}}",
 					"path": [
 						"api",
 						"placeBid"
@@ -131,7 +131,7 @@
 					"urlencoded": [
 						{
 							"key": "privateKey",
-							"value": "",
+							"value": "0xbe25616c4dad32e9d83798edc79c6d8f1a1443908712ab7e41d9edb16f88cdc3",
 							"type": "text"
 						},
 						{
@@ -146,28 +146,28 @@
 						},
 						{
 							"key": "tokenId",
-							"value": "120",
+							"value": "121",
 							"type": "text"
 						},
 						{
 							"key": "bid",
-							"value": "23000",
+							"value": "1500",
 							"type": "text"
 						},
 						{
 							"key": "offerSignedMessage",
-							"value": "",
+							"value": "0x3a980997af3941222d5ddb601253ef9f6efabd4a863e3ea5a6c19df1f794c48c3ef2a717afa6f0163d250248a2e7b1c2d0dae6df7395790d64139a68af2447e01c",
 							"type": "text"
 						}
 					]
 				},
 				"url": {
-					"raw": "http://localhost:3000/api/sign",
+					"raw": "http://localhost:{{PORT}}/api/sign",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "3000",
+					"port": "{{PORT}}",
 					"path": [
 						"api",
 						"sign"
@@ -186,7 +186,7 @@
 					"urlencoded": [
 						{
 							"key": "privateKey",
-							"value": "",
+							"value": "0x4ddd1de9aa7a32e791e63c5bf33cc1f1fbefe4f792f00dc17edbe3a2a84c89c7",
 							"type": "text"
 						},
 						{
@@ -201,23 +201,23 @@
 						},
 						{
 							"key": "tokenId",
-							"value": "120",
+							"value": "121",
 							"type": "text"
 						},
 						{
 							"key": "bid",
-							"value": "23000",
+							"value": "1500",
 							"type": "text"
 						}
 					]
 				},
 				"url": {
-					"raw": "http://localhost:3000/api/sign",
+					"raw": "http://localhost:{{PORT}}/api/sign",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "3000",
+					"port": "{{PORT}}",
 					"path": [
 						"api",
 						"sign"
@@ -236,48 +236,48 @@
 					"urlencoded": [
 						{
 							"key": "senderAccount",
-							"value": "",
+							"value": "0xB73D9E2c79A68751A06210C9F2106d21002467dA",
 							"type": "text"
 						},
 						{
 							"key": "listingId",
-							"value": "120",
+							"value": "121",
 							"type": "text"
 						},
 						{
 							"key": "bidderSig",
-							"value": "",
+							"value": "0x3a980997af3941222d5ddb601253ef9f6efabd4a863e3ea5a6c19df1f794c48c3ef2a717afa6f0163d250248a2e7b1c2d0dae6df7395790d64139a68af2447e01c",
 							"type": "text"
 						},
 						{
 							"key": "ownerApprovedSig",
-							"value": "",
+							"value": "0xa4afba57ed6beba846a5f7a4a645404a1d15b44ff67846f7dad0cffe6e749a88769dcd7f30046ef0b1c3de38b5f7fad4f361e56c4a995138304764ef6b9460aa1b",
 							"type": "text"
 						},
 						{
 							"key": "bidderAddress",
-							"value": "",
+							"value": "0x14a4b1ae60bbf2843CC9032103ef2Cd3Ca3275c6",
 							"type": "text"
 						},
 						{
 							"key": "privateKeyA",
-							"value": "",
+							"value": "0xbe25616c4dad32e9d83798edc79c6d8f1a1443908712ab7e41d9edb16f88cdc3",
 							"type": "text"
 						},
 						{
 							"key": "privateKeyB",
-							"value": "",
+							"value": "0x4ddd1de9aa7a32e791e63c5bf33cc1f1fbefe4f792f00dc17edbe3a2a84c89c7",
 							"type": "text"
 						}
 					]
 				},
 				"url": {
-					"raw": "http://localhost:3000/api/finishAuction",
+					"raw": "http://localhost:{{PORT}}/api/finishAuction",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "3000",
+					"port": "{{PORT}}",
 					"path": [
 						"api",
 						"finishAuction"
@@ -287,7 +287,7 @@
 			"response": []
 		},
 		{
-			"name": "Mint Token",
+			"name": "Mint tokens",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -296,38 +296,38 @@
 					"urlencoded": [
 						{
 							"key": "fromAddress",
-							"value": "",
+							"value": "0xB73D9E2c79A68751A06210C9F2106d21002467dA",
 							"type": "text"
 						},
 						{
 							"key": "toAddress",
-							"value": "",
+							"value": "0xB73D9E2c79A68751A06210C9F2106d21002467dA",
+							"type": "text"
+						},
+						{
+							"key": "amount",
+							"value": "50000",
+							"type": "text"
+						},
+						{
+							"key": "token",
+							"value": "ERC20",
 							"type": "text"
 						},
 						{
 							"key": "privateKey",
 							"value": "",
 							"type": "text"
-						},
-						{
-							"key": "amount",
-							"value": "",
-							"type": "text"
-						},
-						{
-							"key": "token",
-							"value": "",
-							"type": "text"
 						}
 					]
 				},
 				"url": {
-					"raw": "http://localhost:3000/api/mintToken",
+					"raw": "http://localhost:{{PORT}}/api/mintToken",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "3000",
+					"port": "{{PORT}}",
 					"path": [
 						"api",
 						"mintToken"
@@ -335,6 +335,86 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Get Listing by Token ID",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "listingId",
+							"value": "1",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:{{PORT}}/api/listingId",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "{{PORT}}",
+					"path": [
+						"api",
+						"listingId"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Seed",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:{{PORT}}/api/seed",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "{{PORT}}",
+					"path": [
+						"api",
+						"seed"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "PORT",
+			"value": "3000",
+			"type": "string"
 		}
 	]
 }

@@ -41,7 +41,7 @@ To stand out, feel free to add as much functionalities and capabilities as you l
 
 
 ## Start project
-
+- create a ```.env``` file following the structure in ```.env.example``` be aware you are about to insert private keys
 - Install dependencies ``` npm install ```
 - Run server ``` npm run start ```
 
@@ -53,6 +53,11 @@ We have a Postman collection in ```postman_marketplace.json``` ready for you to 
 #### GET
 - **Get all listings**
   http://localhost:3000/api/all-listings
+
+- **Get listing by id**
+  http://localhost:3000/api/listingId
+
+  Params: listingId
 
 #### POST
 - **Create Listing**
@@ -84,6 +89,10 @@ We have a Postman collection in ```postman_marketplace.json``` ready for you to 
   http://localhost:3000/api/mintToken
 
   Params: fromAddress, toAddress, privateKey, amount, token
+
+
+  **Seed**
+  http://localhost:3000/api/seed
 
 
 ## Testing
@@ -134,3 +143,47 @@ I had issues trying to replicate abi.encodePacked() with ethers/web3 packages an
 I found out that the problem was how I was hashing the messages in order to succesfully buy an NFT.
 
 To run the tests just run the following script ``` npm run test ```
+
+## Redis
+
+Fire up the container first with
+```
+npm run redis:up
+```
+
+Just for fun and to integrate some data persistance I added Redis to retrieve past bids. You may notice that there is also a new route ```/api/seed``` to fill the in memory listings array inside the NFT Service. There wasn't much reasoning behind this decision just add more complexity to the challenge. Im sure its not the most efficient way to add Redis but for the sake of simplicity for this challenge I think its ok, we can expand the development im sure.
+
+
+
+## Scripts available
+
+- #### test
+  ```
+  npm run test
+  ```
+- #### redis:up
+  ```
+  npm run redis:up
+  ```
+- #### redis:rm
+  ```
+  npm run redis:rm
+  ```
+- #### redis:logs
+  ```
+  npm run redis:logs
+  ```
+- #### start
+  ```
+  npm run start
+  ```
+
+# Observations
+I don't condone the use of wallet's private keys in the .env file, please use at your own discretion and have in mind this was built for Ethereum's testnet (Sepolia)
+I'm sure there is room for improvement and I'm open to feedback
+
+# TODO List
+  - E2E Test
+  - Test for NFT Service
+  - Test for Utils (utils.js)
+  - Replace console.logs() with something like winston

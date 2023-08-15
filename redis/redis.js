@@ -1,6 +1,5 @@
 const redis = require('redis');
-const { promisify } = require("util");
-let client, hGetAllAsync, keysAsync;
+let client;
 
 (async () => {
   client = redis.createClient({
@@ -10,30 +9,21 @@ let client, hGetAllAsync, keysAsync;
 
   client.on("error", (error) => console.error(`Error : ${error}`));
   client.on('connect', () => {
-    console.log('Connected to Redis');
+    console.log('Connecting...');
   });
-//   await client.connect();
-  hGetAllAsync = promisify(client.hGetAll).bind(client);
-  keysAsync = promisify(client.keys).bind(client);
 })();
 
 async function storeListing(listing) {
     const key = `listing:${listing.id}`;
     const value = JSON.stringify(listing);
-    await client.set(key, value, redis.print);
-    // console.log("asdasd::" , await client.get(key))
-    console.log("listing stored")
+    await client.set(key, value);
+    console.log(`Listing with key ${key} - value ${value}`);
 }
 
-function getListing(id, callback) {
+async function getListingById(id) {
     const key = `listing:${id}`;
-    client.get(key, (err, result) => {
-        if (err) {
-            callback(err);
-            return;
-        }
-        callback(null, JSON.parse(result));
-    });
+    const listing = await client.get(key)
+    return JSON.parse(listing);
 }
 
 async function getAllListings() {
@@ -47,6 +37,6 @@ async function getAllListings() {
 module.exports = {
     client,
     storeListing,
-    getListing,
+    getListingById,
     getAllListings
 };

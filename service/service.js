@@ -2,7 +2,7 @@ const { sendTxAndGetHash, mintTokens, signTx, estimateGas, createTxObject, gener
 const { web3, contract, mockERC20Contract, mockERC721Contract, BN, getERC20Decimals } = require("../config/config");
 const { CONTRACT_ADDRESS, ERC20, ERC721 } = require("../contracts/contracts");
 const { ethers, keccak256 } = require("ethers");
-const { storeListing, getAllListings } = require("../redis/redis")
+const { storeListing, getAllListings, getListingById } = require("../redis/redis")
 const listings = [];
 
 const NftService = {
@@ -15,6 +15,16 @@ const NftService = {
         return [];
     }
   },
+
+  getListingById: async (listingId) => {
+    try {
+      const listing = await getListingById(listingId)
+      return listing
+    } catch (err) {
+      console.error(`Failed to retrieve listing with id: ${listingId}`, err);
+      return [];
+    }
+  },
   createListing: async ({ sellerAddress, collectionAddress, isAuction, price, tokenId, erc20Address }) => {
     const newListing = { id: listings.length + 1, sellerAddress, isAuction, price, tokenId, erc20Address, collectionAddress };
     listings.push(newListing);
@@ -23,11 +33,17 @@ const NftService = {
   },
   placeBid: async function ({ buyerAddress, tokenId, bidAmount }) {
     const listingIndex = listings.findIndex((listing) => listing.tokenId === tokenId);
-    if (listingIndex === -1) throw new Error("Listing not found");
-    const updatedListing = this.processBid(listings[listingIndex], bidAmount, buyerAddress); 
+    if (listingIndex === -1) return { success: false, message: "Listing not found" };
+    // Check if the bid is the same as the existing bid for this listing
+    const existingListing = listings[listingIndex];
+    if (existingListing.buyerAddress === buyerAddress && existingListing.price === bidAmount) {
+      return { success: false, message: "Identical bid already exists" };
+    }
+    const updatedListing = this.processBid(existingListing, bidAmount, buyerAddress); 
+    if (!updatedListing) return { success: false, message: "Failed to process bid" };
     listings[listingIndex] = updatedListing;
-    await storeListing(updatedListing)
-    return updatedListing;
+    await storeListing(updatedListing);
+    return { success: true, data: updatedListing };
   },
   processBid: function (listing, bidAmount, buyerAddress) {
     bidAmount = parseInt(bidAmount);
@@ -76,6 +92,18 @@ const NftService = {
     const balance = await tokenContract.methods.balanceOf(address).call();
     console.log(`Current balance of ${address}: ${balance}`);
   },
+  seedListings: async function() {
+    const redisListings = await getAllListings();
+    redisListings.forEach(redisListing => {
+        const exists = listings.some(listing => listing.id === redisListing.id);
+        if (!exists) {
+            listings.push(redisListing);
+            console.log("Pushing into listings")
+        }
+    });
+
+    return { success: true, message: "In memory listings seeded from redis" }
+  },
   finishAuction: async function ( senderAccount, listing, bidderSig, ownerApprovedSig, bidderAddress, privateKeyA, privateKeyB, obj ) {
     const nonceA = await web3.eth.getTransactionCount(senderAccount);
     const nonceB = await web3.eth.getTransactionCount(bidderAddress);
@@ -121,12 +149,21 @@ const NftService = {
       const tx3 = createTxObject({ web3: web3, nonce: nonceD, from: senderAccount, to: CONTRACT_ADDRESS, data: marketPlaceAction, gasEstimate: gasEstimateMarketplace, gasPrice: adjustedGasPriceBN2, maxGasLimit: maxGas });
       const signedTx3 = await signTx(web3, tx3, privateKeyA);
       const tx3Receipt = await sendTxAndGetHash(web3, signedTx3)
+      await this.markListingAsSold(obj.tokenId)
       console.log(`NFT Marketplace ${CONTRACT_ADDRESS} executed finishAuction() successfully`)
       console.log(`Auction finished between Owner: ${senderAccount} & Buyer: ${bidderAddress}`)
       return { tx1: tx1Receipt, tx2: tx2Receipt, tx3: tx3Receipt };
     } catch (error) {
       console.error("Error:", error);
       throw error;
+    }
+  },
+  markListingAsSold: async function markListingAsSold(tokenId) {
+    const listingIndex = listings.findIndex(l => l.tokenId === tokenId);
+    if (listingIndex !== -1) {
+        listings[listingIndex].status = "sold";
+        await storeListing(listings[listingIndex]);
+        console.log(`The following token id: ${listings[listingIndex].tokenId} has been sold out`)
     }
   },
 };

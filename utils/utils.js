@@ -1,4 +1,3 @@
-const rateLimit = require("express-rate-limit");
 const { ABI, CONTRACT_ADDRESS, ERC20_ABI, ERC721_ABI, ERC20, ERC721 } = require("../contracts/contracts");
 const { mockERC20Contract, contract, mockERC721Contract } = require("../config/config");
 
@@ -51,21 +50,6 @@ async function estimateGasForMinting(tokenContract, fromAddress, toAddress, amou
   console.log("estimated gas ok")
   return gasEstimate;
 }
-
-function limitPayloadSize(req, res, next) {
-  const MAX_PAYLOAD_SIZE = 1024 * 1024; // 1MB
-  if (req.headers["content-length"] && parseInt(req.headers["content-length"]) > MAX_PAYLOAD_SIZE) {
-    return res.status(413).json({ error: "Payload size exceeds the limit" });
-  }
-  next();
-}
-
-const limit = rateLimit({
-  windowMs: 10 * 60 * 1000,
-  max: 100, // Limit to 100 req
-  standardHeaders: true, // return RateLimit in headers
-  legacyHeaders: false, // Disable X-RateLimit headers
-});
 
 async function mintTokens(web3, fromAddress, privateKey, toAddress, amount, token) {
   try {
@@ -132,26 +116,16 @@ function sign(web3Instance, data, privateKey) {
   console.log("Signing data")
   return web3Instance.eth.accounts.sign(data, privateKey);
 }
-function validateBody(schema) {
-  return (req, res, next) => {
-    const { error } = schema.validate(req.body);
-    if (error)
-      return res.status(400).send(error.details[0].message);
-    next();
-  };
-}
+
 
 module.exports = {
   createTxObject,
   checkBalances,
   estimateGas,
   generateApprovalABI,
-  limitPayloadSize,
-  limit,
   mintTokens,
   sendSignedTx,
   sendTxAndGetHash,
   signTx,
   sign,
-  validateBody,
 };

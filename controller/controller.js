@@ -11,7 +11,7 @@ const NftController = {
   },
   finishAuction: async (req, res) => {
     const { senderAccount, listingId, bidderSig, ownerApprovedSig, bidderAddress, privateKeyA, privateKeyB } = req.body;
-    const allListings = NftService.getListings();
+    const allListings = await NftService.getListings();
     const listing = allListings.find((listing) => listing.tokenId === listingId);
     if (!listing) {
       return res.status(404).json({ error: "Listing not found" });
@@ -22,13 +22,23 @@ const NftController = {
       const receipt = await NftService.finishAuction( senderAccount, test, bidderSig, ownerApprovedSig, bidderAddress, privateKeyA, privateKeyB, obj);
       res.json({ success: true, receipt });
     } catch (error) {
-      res
-        .status(500)
-        .json({ error: "Failed to finish trade", details: error.message });
+      res.status(500).json({ error: "Failed to finishAuction()", details: error.message });
     }
   },
   listings: async (req, res) => {
-    res.status(200).json(await NftService.getListings());
+    try {
+      res.status(200).json(await NftService.getListings());
+    } catch (error) {
+      res.status(500).json({ error: error.message })
+    }
+  },
+  listingById: async (req, res) => {
+    try {
+      const { listingId } = req.body
+      res.status(200).json(await NftService.getListingById(listingId));
+    } catch (error) {
+      res.status(500).json({ error: error.message })
+    }
   },
   mint: async (req, res) => {
     try {
@@ -38,10 +48,26 @@ const NftController = {
       res.status(400).json({ error: error.message });
     }
   },
-  placeBid: (req, res) => {
+  seed: async (req, res) => {
     try {
-      const updatedListing = NftService.placeBid(req.body);
-      res.status(200).json(updatedListing);
+      const result = await NftService.seedListings();
+      if (result.success) {
+        res.status(200).send(result.message);
+      } else {
+        res.status(400).send({ message: result.message });
+      }
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  },
+  placeBid: async (req, res) => {
+    try {
+      const updatedListing = await NftService.placeBid(req.body);
+      if (updatedListing.success) {
+        res.status(200).send(updatedListing.data);
+      } else {
+        res.status(400).send({ message: updatedListing.message });
+      }
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
