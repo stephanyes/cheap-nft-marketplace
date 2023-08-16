@@ -1,4 +1,5 @@
 const redis = require('redis');
+const logger = require("../pino/pino")
 let client;
 
 (async () => {
@@ -7,9 +8,9 @@ let client;
     port: process.env.REDIS_PORT
 });
 
-  client.on("error", (error) => console.error(`Error : ${error}`));
+  client.on("error", (error) => logger.error(`Error : ${error}`));
   client.on('connect', () => {
-    console.log('Connecting...');
+    logger.info('Connecting to Redis...');
   });
 })();
 
@@ -17,7 +18,7 @@ async function storeListing(listing) {
     const key = `listing:${listing.id}`;
     const value = JSON.stringify(listing);
     await client.set(key, value);
-    console.log(`Listing with key ${key} - value ${value}`);
+    logger.info(`Listing with key ${key} - value ${value}`);
 }
 
 async function getListingById(id) {

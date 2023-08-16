@@ -15,5 +15,5 @@ async function getERC20Decimals() {
     return null;
   }
 }
-console.log(`Contract address ${contract.options.address}`);
+
 module.exports = { web3, contract, mockERC20Contract, mockERC721Contract, BN, getERC20Decimals };

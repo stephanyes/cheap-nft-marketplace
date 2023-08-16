@@ -1,5 +1,6 @@
 const { ABI, CONTRACT_ADDRESS, ERC20_ABI, ERC721_ABI, ERC20, ERC721 } = require("../contracts/contracts");
 const { mockERC20Contract, contract, mockERC721Contract } = require("../config/config");
+const logger = require("../pino/pino")
 
 async function checkBalances(web3, account, type, ERC20ContractAddress, requiredTokenAmount, estimatedGas, gasPrice) {
   // Check Ether balance for gas
@@ -14,9 +15,9 @@ async function checkBalances(web3, account, type, ERC20ContractAddress, required
     let symbol = await ERC20Contract.methods.symbol().call();
     if (BigInt(tokenBalance) < BigInt(requiredTokenAmount))
       throw new Error(`Insufficient ERC20 token balance for account ${account}.`);
-    console.log(`${account} balance: ${etherBalance} ETH & ${tokenBalance} ${symbol} token`);
+    logger.info(`${account} balance: ${etherBalance} ETH & ${tokenBalance} ${symbol} token`);
   } else {
-    console.log(`${account} balance: ${etherBalance} ETH`);
+    logger.info(`${account} balance: ${etherBalance} ETH`);
   }
   return true;
 }
@@ -27,7 +28,7 @@ function convertToWei(web3, amount, unit = "gwei") {
 
 function createTxObject({ web3, nonce, from, to, data, gasEstimate, gasPrice, maxGasLimit }) {
   const finalGasLimit = Math.min(gasEstimate, maxGasLimit);
-  console.log(`Creating TxObject with finalGasLimit set to: ${finalGasLimit}`)
+  logger.info(`Creating TxObject with finalGasLimit set to: ${finalGasLimit}`)
   return {
     nonce: web3.utils.toHex(nonce),
     from,
@@ -39,7 +40,7 @@ function createTxObject({ web3, nonce, from, to, data, gasEstimate, gasPrice, ma
 }
 
 function estimateGas(contract, methodName, params, sender) {
-  console.log("Estimating gas")
+  logger.info("Estimating gas")
   return contract.methods[methodName](...params).estimateGas({ from: sender });
 }
 
@@ -47,7 +48,7 @@ async function estimateGasForMinting(tokenContract, fromAddress, toAddress, amou
   // Create the contract instance
   const symbol = await tokenContract.methods.symbol().call()
   const gasEstimate = symbol === "M20" ? await tokenContract.methods.mint(toAddress, amount).estimateGas({from: fromAddress}) : await tokenContract.methods.mint(toAddress).estimateGas({from: fromAddress})
-  console.log("estimated gas ok")
+  logger.info("estimated gas ok")
   return gasEstimate;
 }
 
@@ -73,10 +74,10 @@ async function mintTokens(web3, fromAddress, privateKey, toAddress, amount, toke
     const signedTx = await signTx(web3, tx, privateKey)
     // Send the transaction and get the receipt
     const receipt = await sendSignedTx(web3, signedTx)
-    console.log("Receipt mintToken(): ", receipt)
+    logger.info("Receipt mintToken(): ", receipt)
     return receipt;
   } catch (error) {
-    console.error(`An error occurred while fetching the token balance: ${error}`);
+    logger.error(`An error occurred while fetching the token balance: ${error}`);
   }
 }
 
@@ -85,7 +86,7 @@ async function getTransactionCount(web3, address) {
 }
 
 function generateApprovalABI(contract, methodFunc, params) {
-  console.log("Generating contract encoded ABI")
+  logger.info("Generating contract encoded ABI")
   return contract.methods[methodFunc](...params).encodeABI();
 }
 
@@ -94,7 +95,7 @@ function privateKeyToAccount(web3, privateKey) {
 }
 
 function sendSignedTx(web3Instance, signedTx) {
-  console.log("Sending SignedTx")
+  logger.info("Sending SignedTx")
   return web3Instance.eth.sendSignedTransaction(signedTx.raw || signedTx.rawTransaction);
 }
 async function sendTxAndGetHash(web3, signedTransaction) {
@@ -109,11 +110,11 @@ async function sendTxAndGetHash(web3, signedTransaction) {
   });
 }
 function signTx(web3Instance, tx, privateKey) {
-  console.log("Signing Tx")
+  logger.info("Signing Tx")
   return web3Instance.eth.accounts.signTransaction(tx, privateKey);
 }
 function sign(web3Instance, data, privateKey) {
-  console.log("Signing data")
+  logger.info("Signing data")
   return web3Instance.eth.accounts.sign(data, privateKey);
 }
 
