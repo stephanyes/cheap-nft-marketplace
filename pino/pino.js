@@ -5,9 +5,9 @@ const logger = pino({
   transport: {
     target: 'pino-pretty',
     options: {
-      colorize: process.env.PINO_PRINT
-    }
-  }
+      colorize: process.env.PINO_PRINT,
+    },
+  },
 });
 
 module.exports = logger;

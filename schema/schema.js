@@ -1,4 +1,4 @@
-const Joi = require("joi");
+const Joi = require('joi');
 
 const listNftSchema = Joi.object({
   tokenId: Joi.number().required(),
@@ -24,4 +24,13 @@ const signatureSchema = Joi.object({
   offerSignedMessage: Joi.string().optional(),
 });
 
-module.exports = { listNftSchema, placeBidSchema, signatureSchema };
+const listingIdSchema = Joi.object({
+  listingId: Joi.number().required(),
+});
+
+module.exports = {
+  listNftSchema,
+  placeBidSchema,
+  signatureSchema,
+  listingIdSchema,
+};
