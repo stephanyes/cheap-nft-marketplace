@@ -1,5 +1,6 @@
-const NftService = require("../service/service");
-const { getListing } = require("../redis/redis")
+/* eslint-disable max-len */
+const NftService = require('../service/service');
+
 const NftController = {
   createListing: async (req, res) => {
     try {
@@ -9,41 +10,46 @@ const NftController = {
       res.status(400).json({ error: error.message });
     }
   },
+  // eslint-disable-next-line consistent-return
   finishAuction: async (req, res) => {
-    const { senderAccount, listingId, bidderSig, ownerApprovedSig, bidderAddress, privateKeyA, privateKeyB } = req.body;
+    const {
+      senderAccount, listingId, bidderSig, ownerApprovedSig, bidderAddress, privateKeyA, privateKeyB,
+    } = req.body;
     const allListings = await NftService.getListings();
-    const listing = allListings.find((listing) => listing.tokenId === listingId);
+    const listing = allListings.find((item) => item.tokenId === listingId);
     if (!listing) {
-      return res.status(404).json({ error: "Listing not found" });
+      return res.status(404).json({ error: 'Listing not found' });
     }
     try {
-      const obj = { tokenId: listingId, bid: listing.price, collectionAddress: listing.collectionAddress, erc20Address: listing.erc20Address, privateKey: privateKeyA };
+      const obj = {
+        tokenId: listingId, bid: listing.price, collectionAddress: listing.collectionAddress, erc20Address: listing.erc20Address, privateKey: privateKeyA,
+      };
       const test = await NftService.prepareData(obj);
-      const receipt = await NftService.finishAuction( senderAccount, test, bidderSig, ownerApprovedSig, bidderAddress, privateKeyA, privateKeyB, obj);
+      const receipt = await NftService.finishAuction(senderAccount, test, bidderSig, ownerApprovedSig, bidderAddress, privateKeyA, privateKeyB, obj);
       res.json({ success: true, receipt });
     } catch (error) {
-      res.status(500).json({ error: "Failed to finishAuction()", details: error.message });
+      res.status(500).json({ error: 'Failed to finishAuction()', details: error.message });
     }
   },
   listings: async (req, res) => {
     try {
       res.status(200).json(await NftService.getListings());
     } catch (error) {
-      res.status(500).json({ error: error.message })
+      res.status(500).json({ error: error.message });
     }
   },
   listingById: async (req, res) => {
     try {
-      const { listingId } = req.body
+      const listingId = parseInt(req.query.listingId, 10);
       res.status(200).json(await NftService.getListingById(listingId));
     } catch (error) {
-      res.status(500).json({ error: error.message })
+      res.status(500).json({ error: error.message });
     }
   },
   mint: async (req, res) => {
     try {
-      const test = await NftService.mintTokens(req.body)
-      res.status(200).json(test)
+      const test = await NftService.mintToken(req.body);
+      res.status(200).json(test);
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
