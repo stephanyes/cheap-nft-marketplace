@@ -1,5 +1,9 @@
+import { AbiItem } from 'web3-utils'
 const { CONTRACT_ADDRESS } = process.env;
-const ABI = [{
+
+type Address = string;
+
+const ABI: AbiItem[] = [{
   inputs: [{
     components: [{ internalType: 'address', name: 'collectionAddress', type: 'address' }, { internalType: 'address', name: 'erc20Address', type: 'address' }, { internalType: 'uint256', name: 'tokenId', type: 'uint256' }, { internalType: 'uint256', name: 'bid', type: 'uint256' }], internalType: 'struct Marketplace.AuctionData', name: 'auctionData', type: 'tuple',
   }, { internalType: 'bytes', name: 'bidderSig', type: 'bytes' }, { internalType: 'bytes', name: 'ownerApprovedSig', type: 'bytes' }],
@@ -9,7 +13,7 @@ const ABI = [{
   type: 'function',
 }];
 
-const ERC721_ABI = [
+const ERC721_ABI: AbiItem[] = [
   { inputs: [{ internalType: 'string', name: 'name_', type: 'string' }, { internalType: 'string', name: 'symbol_', type: 'string' }], stateMutability: 'nonpayable', type: 'constructor' },
   {
     anonymous: false,
@@ -100,7 +104,7 @@ const ERC721_ABI = [
   },
 ];
 
-const ERC20_ABI = [
+const ERC20_ABI: AbiItem[] = [
   { inputs: [{ internalType: 'string', name: 'name_', type: 'string' }, { internalType: 'string', name: 'symbol_', type: 'string' }], stateMutability: 'nonpayable', type: 'constructor' },
   {
     anonymous: false,
@@ -164,9 +168,9 @@ const ERC20_ABI = [
   },
 ];
 
-const ERC20 = '0xbd65c58D6F46d5c682Bf2f36306D461e3561C747';
-const ERC721 = '0xFCE9b92eC11680898c7FE57C4dDCea83AeabA3ff';
+const ERC20: Address = '0xbd65c58D6F46d5c682Bf2f36306D461e3561C747';
+const ERC721: Address = '0xFCE9b92eC11680898c7FE57C4dDCea83AeabA3ff';
 
-module.exports = {
+export {
   CONTRACT_ADDRESS, ABI, ERC721, ERC721_ABI, ERC20, ERC20_ABI,
 };
