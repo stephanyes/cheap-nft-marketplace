@@ -1,36 +1,37 @@
 import type { RedisClientType } from 'redis'
 import { createClient } from 'redis'
 // import { config } from '@app/config'
-import logger from '../pino/pino';
+import { PinoLogger } from '../logger/pino';
 
-const config = {
-  url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
-  urlTls: process.env.REDIS_URL_TLS || '',
-  tlsFlag: process.env.REDIS_TLS_FLAG === 'true'
-}
-let redisClient: RedisClientType | null = null;
+const useTLS = process.env.REDIS_TLS_FLAG === 'true';
+const redisURL = useTLS ? process.env.REDIS_URL_TLS : `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`;
 
 const cacheOptions = {
-  url: config.tlsFlag ? config.urlTls : config.url,
+  url: redisURL,
+  ...(useTLS && { socket: { tls: true } }) // Add the socket option if useTLS is true
 };
 
-if (config.tlsFlag) {
-  Object.assign(cacheOptions, {
-    socket: {
-      tls: false,
-    },
-  });
+let redisClient: RedisClientType | null = null;
+
+type EventCallback = (...args: any[]) => string;
+
+const eventMessageMap: Record<string, EventCallback> = {
+  error: (err: any) => `Redis Error: ${err}`,
+  connect: () => 'Redis connected',
+  reconnecting: () => 'Redis reconnecting',
+  ready: () => 'Redis ready!'
+};
+
+function attachRedisEventListeners(client: RedisClientType) {
+  for (const [event, getMessage] of Object.entries(eventMessageMap)) {
+    client.on(event as any, (...args: any[]) => PinoLogger.info(getMessage(...args)));
+  }
 }
 
-async function getCache(): Promise<RedisClientType> {
+async function getRedisClient(): Promise<RedisClientType> {
   if (!redisClient) {
-    redisClient = createClient({
-      ...cacheOptions,
-    });
-    redisClient.on('error', err => logger.error(`Redis Error: ${err}`));
-    redisClient.on('connect', () => logger.info('Redis connected'));
-    redisClient.on('reconnecting', () => logger.info('Redis reconnecting'));
-    redisClient.on('ready', () => logger.info('Redis ready!'));
+    redisClient = createClient(cacheOptions);
+    attachRedisEventListeners(redisClient);
     await redisClient.connect();
   }
   return redisClient;
@@ -45,19 +46,19 @@ interface Listing {
 
             
 export async function storeListing(listing: Listing): Promise<void> {
-  const client = await getCache();
+  const client = await getRedisClient();
   try {
     const key = `listing:${listing.id}`;
     const value = JSON.stringify(listing);
     await client.set(key, value);
-    logger.info(`Stored listing with key ${key}`);
+    PinoLogger.info(`Stored listing with key ${key}`);
   } catch (error) {
-    logger.error(`Failed to store listing: ${error}`);
+    PinoLogger.error(`Failed to store listing: ${error}`);
   }
 }
 
 export async function getListingById(id: string): Promise<Listing | []> {
-  const client = await getCache();
+  const client = await getRedisClient();
   try {
     const key = `listing:${id}`;
     const listing = await client.get(key);
@@ -68,13 +69,13 @@ export async function getListingById(id: string): Promise<Listing | []> {
     
     return JSON.parse(listing);
   } catch (error) {
-    logger.error(`Failed to get listing by id: ${error}`);
+    PinoLogger.error(`Failed to get listing by id: ${error}`);
     throw error;
   }
 }
 
 export async function getAllListings(): Promise<Listing[]> {
-  const client = await getCache();
+  const client = await getRedisClient();
   try {
     // Note: This can be problematic with large datasets.
     const keys: string[] = await client.keys('listing:*');
@@ -84,9 +85,9 @@ export async function getAllListings(): Promise<Listing[]> {
     .filter(value => value !== null) // Filter out null values
     .map((valueString) => JSON.parse(valueString as string)); // No nulls present
   } catch (error) {
-    logger.error(`Failed to get all listings: ${error}`);
+    PinoLogger.error(`Failed to get all listings: ${error}`);
     throw error;
   }
 }
-export { getCache, redisClient };
+export { getRedisClient, redisClient };
 
