@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Web3 from 'web3';
 import { BN } from './config/config.ts';
 import { Address } from './contracts/contracts.ts';
@@ -22,6 +23,49 @@ export interface TransactionObject {
     data?: string;
     nonce?: string;
     chainId?: number;
+}
+
+export interface EventLog {
+    event: string;
+    address: string;
+    returnValues: any;
+    logIndex: number;
+    transactionIndex: number;
+    transactionHash: string;
+    blockHash: string;
+    blockNumber: number;
+    raw?: {data: string; topics: any[]};
+}
+
+export interface Log {
+    address: string;
+    data: string;
+    topics: string[];
+    logIndex: number;
+    transactionIndex: number;
+    transactionHash: string;
+    blockHash: string;
+    blockNumber: number;
+    removed: boolean;
+}
+
+export interface TransactionReceipt {
+    status: boolean;
+    transactionHash: string;
+    transactionIndex: number;
+    blockHash: string;
+    blockNumber: number;
+    from: string;
+    to: string;
+    contractAddress?: string;
+    cumulativeGasUsed: number;
+    gasUsed: number;
+    effectiveGasPrice: number;
+    logs: Log[];
+    logsBloom: string;
+    events?: {
+        [eventName: string]: EventLog;
+    };
 }
 
 export interface SignedTransaction {
