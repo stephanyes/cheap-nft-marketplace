@@ -190,10 +190,10 @@ class NftService {
       await checkBalances(web3, bidderAddress, 'bidder', ERC20, transformedBid, gasEstimateERC20, adjustedGasPriceBN);
       PinoLogger.info('Balances done');
       const transaction1 = createTransactionObject({
-        web3, nonce: nonceA, from: senderAccount, to: ERC721, data: approveABIERC721, gasEstimate: gasEstimateERC721, gasPrice: adjustedGasPriceBN, maxGasLimit: maxGas,
+        web3, nonce: nonceA.toString(), from: senderAccount, to: ERC721, data: approveABIERC721, gasEstimate: gasEstimateERC721, gasPrice: adjustedGasPriceBN, maxGasLimit: maxGas,
       });
       const transaction2 = createTransactionObject({
-        web3, nonce: nonceB, from: bidderAddress, to: ERC20, data: approveABIERC20, gasEstimate: gasEstimateERC20, gasPrice: adjustedGasPriceBN, maxGasLimit: maxGas,
+        web3, nonce: nonceB.toString(), from: bidderAddress, to: ERC20, data: approveABIERC20, gasEstimate: gasEstimateERC20, gasPrice: adjustedGasPriceBN, maxGasLimit: maxGas,
       });
       const [signedTx1, signedTx2] = await Promise.all([signTransaction(web3, transaction1, privateKeyA), signTransaction(web3, transaction2, privateKeyB)]);
       PinoLogger.info('First two transactions sign done');
@@ -214,7 +214,7 @@ class NftService {
       const gasEstimateMarketplace = await estimateTransactionGas(contract, 'finishAuction', [[obj.collectionAddress, obj.erc20Address, transformedTokenId, transformedBid], bidderSig, ownerApprovedSig], senderAccount);
       PinoLogger.info('Gas estimated for finishAuction done');
       const transaction3 = createTransactionObject({
-        web3, nonce: nonceD, from: senderAccount, to: CONTRACT_ADDRESS, data: marketPlaceAction, gasEstimate: gasEstimateMarketplace, gasPrice: adjustedGasPriceBN2, maxGasLimit: maxGas,
+        web3, nonce: nonceD.toString(), from: senderAccount, to: CONTRACT_ADDRESS, data: marketPlaceAction, gasEstimate: gasEstimateMarketplace, gasPrice: adjustedGasPriceBN2, maxGasLimit: maxGas,
       });
       const signedTx3 = await signTransaction(web3, transaction3, privateKeyA);
       const tx3Receipt = await sendTransactionAndGetHash(web3, signedTx3);
