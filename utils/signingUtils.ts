@@ -2,7 +2,12 @@
 import Web3 from 'web3';
 import { PinoLogger } from '../logger/pino.ts';
 import { BN } from '../config/config.ts';
-import { SignedTransaction, TransactionOptions, TransactionObject } from '../types.ts';
+import {
+  SignedTransaction,
+  TransactionOptions,
+  TransactionObject,
+  TransactionReceipt,
+} from '../types.ts';
 
 /**
  * Creates a transaction object with necessary details.
@@ -33,12 +38,12 @@ function createTransactionObject(options: TransactionOptions): TransactionObject
    *
    * @param {Object} web3Instance - The web3 instance.
    * @param {SignedTransaction} signedTransaction - The signed transaction object.
-   * @returns {Promise<Object>} Returns the transaction receipt.
+   * @returns {Promise<TransactionReceipt>} Returns the transaction receipt.
    */
 async function sendSignedTransaction(
   web3Instance: Web3,
   signedTransaction: SignedTransaction,
-): Promise<any> {
+): Promise<TransactionReceipt> {
   try {
     PinoLogger.info('Sending Signed Transaction');
     return await web3Instance.eth.sendSignedTransaction(
@@ -80,10 +85,14 @@ async function sendTransactionAndGetHash(web3Instance: Web3, signedTransaction: 
    * @param {string} privateKey
    * @returns {Promise<string>} Returns the transaction hash.
    */
-function signTransaction(web3Instance: Web3, transaction: any, privateKey: string): Promise<any> {
+async function signTransaction(
+  web3Instance: Web3,
+  transaction: any,
+  privateKey: string,
+): Promise<any> {
   try {
     PinoLogger.info('Signing transaction');
-    return web3Instance.eth.accounts.signTransaction(transaction, privateKey);
+    return await web3Instance.eth.accounts.signTransaction(transaction, privateKey);
   } catch (error: any) {
     PinoLogger.error(`Failed to sign transaction: ${error.message}`);
     throw error;
