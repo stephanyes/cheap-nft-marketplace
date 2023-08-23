@@ -1,9 +1,11 @@
-import { AbiItem } from 'web3-utils'
-const { CONTRACT_ADDRESS } = process.env;
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// import { AbiInput, AbiStruct, ContractAbi, AbiFragment } from 'web3-types';
+// TODO change any[] for the correct ABI type
+const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS || '0x597C9bC3F00a4Df00F85E9334628f6cDf03A1184';
 
-type Address = string;
+export type Address = string;
 
-const ABI: AbiItem[] = [{
+const ABI: any[] = [{
   inputs: [{
     components: [{ internalType: 'address', name: 'collectionAddress', type: 'address' }, { internalType: 'address', name: 'erc20Address', type: 'address' }, { internalType: 'uint256', name: 'tokenId', type: 'uint256' }, { internalType: 'uint256', name: 'bid', type: 'uint256' }], internalType: 'struct Marketplace.AuctionData', name: 'auctionData', type: 'tuple',
   }, { internalType: 'bytes', name: 'bidderSig', type: 'bytes' }, { internalType: 'bytes', name: 'ownerApprovedSig', type: 'bytes' }],
@@ -13,7 +15,7 @@ const ABI: AbiItem[] = [{
   type: 'function',
 }];
 
-const ERC721_ABI: AbiItem[] = [
+const ERC721_ABI: any[] = [
   { inputs: [{ internalType: 'string', name: 'name_', type: 'string' }, { internalType: 'string', name: 'symbol_', type: 'string' }], stateMutability: 'nonpayable', type: 'constructor' },
   {
     anonymous: false,
@@ -104,7 +106,7 @@ const ERC721_ABI: AbiItem[] = [
   },
 ];
 
-const ERC20_ABI: AbiItem[] = [
+const ERC20_ABI: any[] = [
   { inputs: [{ internalType: 'string', name: 'name_', type: 'string' }, { internalType: 'string', name: 'symbol_', type: 'string' }], stateMutability: 'nonpayable', type: 'constructor' },
   {
     anonymous: false,

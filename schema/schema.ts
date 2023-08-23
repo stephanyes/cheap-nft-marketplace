@@ -1,21 +1,30 @@
-const Joi = require('joi');
+import Joi, { Schema } from 'joi';
 
-const listNftSchema = Joi.object({
+interface IListNftSchema {
+  tokenId: number;
+  price: number;
+  isAuction: boolean;
+  sellerAddress: string;
+  collectionAddress: string;
+  erc20Address: string;
+}
+
+const listNftSchema = Joi.object<IListNftSchema>({
   tokenId: Joi.number().required(),
-  price: Joi.number().required(), // If it's an auction, this could be the starting bid
+  price: Joi.number().required(),
   isAuction: Joi.boolean().required(),
   sellerAddress: Joi.string().required(),
   collectionAddress: Joi.string().required(),
   erc20Address: Joi.string().required(),
 });
 
-const placeBidSchema = Joi.object({
+const placeBidSchema: Schema = Joi.object({
   tokenId: Joi.string().required(),
-  bidAmount: Joi.number().required(), // This could represent the bid amount or purchase price
+  bidAmount: Joi.number().required(),
   buyerAddress: Joi.string().required(),
 });
 
-const signatureSchema = Joi.object({
+const signatureSchema: Schema = Joi.object({
   privateKey: Joi.string().required(),
   collectionAddress: Joi.string().required(),
   erc20Address: Joi.string().required(),
@@ -24,11 +33,11 @@ const signatureSchema = Joi.object({
   offerSignedMessage: Joi.string().optional(),
 });
 
-const listingIdSchema = Joi.object({
+const listingIdSchema: Schema = Joi.object({
   listingId: Joi.number().required(),
 });
 
-module.exports = {
+export {
   listNftSchema,
   placeBidSchema,
   signatureSchema,

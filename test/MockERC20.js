@@ -5,12 +5,11 @@ const { expect } = require('chai');
 const { ethers } = require('hardhat');
 
 describe('MockERC20', () => {
-  let MockERC20; let mockERC20; let owner; let addr1; let
-    addr2;
+  let MockERC20; let mockERC20; let owner; let addr1; let addr2;
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
   beforeEach(async () => {
     MockERC20 = await ethers.getContractFactory('MockERC20');
-    [owner, addr1, addr2, _] = await ethers.getSigners();
+    [owner, addr1, addr2] = await ethers.getSigners();
 
     // Deploy the contract
     mockERC20 = await MockERC20.deploy('MockToken', 'MTK');
