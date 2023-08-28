@@ -115,7 +115,20 @@ class NftService {
     fromAddress, privateKey, toAddress, amount, token,
   }: MintTokenParams) {
     try {
-      const test = await mintToken(web3, fromAddress, privateKey, toAddress, amount, token);
+      let tokenContract; let
+        tokenAddress;
+
+      if (token === 'ERC20') {
+        tokenContract = mockERC20Contract;
+        tokenAddress = ERC20;
+      } else if (token === 'ERC721') {
+        tokenContract = mockERC721Contract;
+        tokenAddress = ERC721;
+      } else {
+        throw new Error('Invalid token type provided.');
+      }
+
+      const test = await mintToken(web3, tokenContract, tokenAddress, fromAddress, privateKey, toAddress, amount);
       return test;
     } catch (error) {
       PinoLogger.error('Error:', error);
