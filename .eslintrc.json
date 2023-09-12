@@ -4,10 +4,15 @@
         "commonjs": true,
         "es2021": true
     },
-    "extends": "airbnb-base",
     "parserOptions": {
         "ecmaVersion": "latest"
     },
     "rules": {
-    }
+    },
+    "parser": "@typescript-eslint/parser",
+    "plugins": ["@typescript-eslint"],
+    "extends": [
+        "airbnb-base",
+        "plugin:@typescript-eslint/recommended"
+    ]
 }

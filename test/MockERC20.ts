@@ -1,16 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 /* eslint-disable import/no-extraneous-dependencies */
-const { expect } = require('chai');
-const { ethers } = require('hardhat');
+import { expect } from 'chai';
+import { ethers } from 'hardhat';
 
 describe('MockERC20', () => {
-  let MockERC20; let mockERC20; let owner; let addr1; let
-    addr2;
+  let MockERC20; let mockERC20: any; let owner: any; let addr1: any; let addr2: any;
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
   beforeEach(async () => {
     MockERC20 = await ethers.getContractFactory('MockERC20');
-    [owner, addr1, addr2, _] = await ethers.getSigners();
+    [owner, addr1, addr2] = await ethers.getSigners();
 
     // Deploy the contract
     mockERC20 = await MockERC20.deploy('MockToken', 'MTK');
