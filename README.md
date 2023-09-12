@@ -161,6 +161,10 @@ Just for fun and to integrate some data persistance I added Redis to retrieve pa
   ```
   npm run test
   ```
+- #### jest
+  ```
+  npm run jest
+  ```
 - #### redis:up
   ```
   npm run redis:up
@@ -182,8 +186,12 @@ Just for fun and to integrate some data persistance I added Redis to retrieve pa
 I don't condone the use of wallet's private keys in the .env file, please use at your own discretion and have in mind this was built for Ethereum's testnet (Sepolia)
 I'm sure there is room for improvement and I'm open to feedback
 
+# Edit 12/09/23
+- Replaced JS with TS
+- All utility functions are mocked and tested
+- Contracts are mocked and tested
+
+
 # TODO List
   - E2E Test
   - Test for NFT Service
-  - Test for Utils (utils.js)
-  - Replace console.logs() with something like winston
